@@ -28,7 +28,7 @@
 
 <br/>
 
-**[🚀 Live Demo](https://yourusername.github.io/finmodel-pro)** &nbsp;·&nbsp; **[📖 Documentation](#-documentation)** &nbsp;·&nbsp; **[🐛 Report Bug](https://github.com/yourusername/finmodel-pro/issues)** &nbsp;·&nbsp; **[💡 Request Feature](https://github.com/yourusername/finmodel-pro/issues)**
+**[🚀 Live Demo]([https://yourusername.github.io/finmodel-pro](https://divyansh1920.github.io/FinModel-Pro/))** &nbsp;·&nbsp; **[📖 Documentation](#-documentation)** &nbsp;·&nbsp; **[🐛 Report Bug](https://github.com/divyansh1920/FinModel-Pro/issues)** &nbsp;·&nbsp; **[💡 Request Feature](https://github.com/divyansh1920/FinModel-Pro/issues)**
 
 <br/>
 
