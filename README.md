@@ -587,7 +587,7 @@ documentation. Institutional references are for educational context only.
 
 <br/>
 
-[![Star History Chart](https://api.star-history.com/svg?repos=yourusername/finmodel-pro&type=Date)](https://star-history.com/#yourusername/finmodel-pro&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=divyansh1920/FinModel-Pro&type=Date)](https://star-history.com/#yourusername/finmodel-pro&Date)
 
 <br/>
 
