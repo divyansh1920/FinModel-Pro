@@ -1,0 +1,2549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinModel Pro | Institutional Financial Toolkit</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #0F172A; /* Deep Navy */
+            --accent: #3B82F6; /* Electric Blue */
+            --accent-hover: #2563EB;
+            --gold: #D97706; /* Bronze/Gold */
+            --bg-body: #F8FAFC;
+            --bg-card: #FFFFFF;
+            --text-main: #1E293B;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --font-sans: 'Inter', system-ui, sans-serif;
+            --font-serif: 'Playfair Display', serif;
+            --radius: 12px;
+        }
+        
+        * { box-sizing: border-box; }
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden; /* Only hide horizontal overflow */
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        /* Modern Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; opacity: 0.5; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        /* Typography */
+        h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -0.025em; }
+        .font-serif { font-family: var(--font-serif); }
+
+        /* Layout */
+        .app-container { display: flex; flex-direction: column; height: 100%; max-width: 1600px; margin: 0 auto; width: 100%; background: var(--bg-body); }
+        
+        /* Navbar */
+        .navbar {
+            height: 72px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            flex-shrink: 0;
+            z-index: 100;
+            position: sticky;
+            top: 0;
+            transition: all 0.3s ease;
+        }
+        .nav-brand { font-family: var(--font-serif); font-weight: 800; font-size: 24px; color: var(--primary); display: flex; align-items: center; gap: 8px; letter-spacing: -0.03em; }
+        .nav-brand span { color: var(--accent); }
+        .nav-links { display: flex; gap: 6px; overflow-x: auto; padding: 4px; -ms-overflow-style: none; scrollbar-width: none; align-items: center; }
+        .nav-links::-webkit-scrollbar { display: none; }
+        .nav-link {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 100px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .nav-link:hover { color: var(--primary); background: rgba(15, 23, 42, 0.04); transform: translateY(-1px); }
+        .nav-link.active { color: white; background: var(--primary); box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.2); transform: translateY(-1px); }
+        .nav-actions { display: flex; gap: 12px; }
+
+        /* Models Grid */
+        .models-grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 32px;
+            padding: 0 24px 80px;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        /* Main Content */
+        .main-content { flex: 1; padding: 0; position: relative; }
+        .page-section { padding: 40px 24px; max-width: 1280px; margin: 0 auto; width: 100%; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Cards & Inputs */
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); transition: transform 0.2s, box-shadow 0.2s; }
+        .card:hover { box-shadow: var(--shadow-lg); }
+        .card-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-body);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: var(--font-mono);
+            font-size: 14px;
+            color: var(--text-main);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        .form-input:hover { border-color: #9ca3af; }
+        .form-helper { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+        .info-icon {
+            display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px;
+            border-radius: 50%; background: var(--border); color: var(--text-muted); font-size: 10px;
+            margin-left: 6px; cursor: help; vertical-align: middle;
+        }
+        .info-icon:hover { background: var(--accent); color: white; }
+
+        /* Tables */
+        .fin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .fin-table th { text-align: left; padding: 12px; border-bottom: 2px solid var(--border); color: var(--text-muted); font-weight: 600; position: sticky; top: 0; background: var(--bg-card); }
+        .fin-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-family: var(--font-mono); }
+        .fin-table tr:last-child td { border-bottom: none; }
+        .fin-table tr:hover td { background: rgba(0,0,0,0.02); }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px;
+            cursor: pointer; transition: all 0.2s; border: none; text-decoration: none;
+        }
+        .btn-primary { background: var(--accent); color: white; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.4); }
+        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 6px 8px -1px rgba(59, 130, 246, 0.5); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-outline:hover { border-color: var(--accent); color: var(--accent); background: rgba(59, 130, 246, 0.05); }
+
+        /* Animations */
+        :root {
+            --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+            --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        @keyframes fadeInUp { 
+            from { opacity: 0; transform: translateY(30px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        @keyframes fadeIn { 
+            from { opacity: 0; } 
+            to { opacity: 1; } 
+        }
+        
+        .page-section:not(.hidden) { animation: fadeIn 0.8s var(--ease-out-quart) forwards; }
+        .card, .metric-card { animation: fadeInUp 1s var(--ease-out-expo) backwards; }
+        .input-panel { animation: fadeInUp 1s var(--ease-out-expo) backwards; animation-delay: 0.1s; }
+        .output-panel { animation: fadeInUp 1s var(--ease-out-expo) backwards; animation-delay: 0.2s; }
+        
+        /* Interactive Transitions */
+        .btn, .nav-link, .tab-btn, .glossary-card, .feature-card, .model-card, .roadmap-node, .quiz-btn, input, select {
+            transition: all 0.4s var(--ease-out-expo);
+        }
+        
+        /* Glossary Cards */
+        .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .glossary-card {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px;
+            position: relative; overflow: hidden;
+        }
+        .glossary-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: var(--shadow); }
+        .glossary-term { font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 8px; font-family: var(--font-serif); }
+        .glossary-def { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+        .glossary-cat {
+            display: inline-block; padding: 4px 10px; background: rgba(59, 130, 246, 0.1); color: var(--accent);
+            border-radius: 100px; font-size: 11px; font-weight: 600; margin-bottom: 12px;
+        }
+
+        /* Formula Dropdown */
+        details.formula-details {
+            background: var(--bg-card); 
+            border: 1px solid var(--border); 
+            border-radius: 12px; 
+            margin-top: 24px;
+            overflow: hidden; 
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s var(--ease-out-expo);
+        }
+        details.formula-details summary {
+            padding: 16px 20px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            color: var(--primary);
+            background: rgba(248, 250, 252, 0.5);
+            list-style: none; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            transition: background 0.2s;
+        }
+        details.formula-details summary:hover { background: rgba(59, 130, 246, 0.05); }
+        details.formula-details summary::-webkit-details-marker { display: none; }
+        details.formula-details summary::after { 
+            content: '+'; 
+            font-size: 20px; 
+            color: var(--text-muted); 
+            font-weight: 300;
+            transition: transform 0.3s;
+        }
+        details.formula-details[open] summary::after { content: '−'; transform: rotate(180deg); }
+        details.formula-details[open] { border-color: var(--accent); box-shadow: var(--shadow); }
+        .formula-content { 
+            padding: 24px; 
+            border-top: 1px solid var(--border); 
+            background: var(--bg-card); 
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--text-main);
+            line-height: 1.8;
+        }
+        .formula-item { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--border); }
+        .formula-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        .formula-name { font-weight: 600; color: var(--primary); margin-bottom: 4px; display: block; font-family: var(--font-sans); }
+        .formula-eq { color: var(--text-muted); background: rgba(0,0,0,0.02); padding: 4px 8px; border-radius: 4px; display: inline-block; }
+
+
+        /* --- NEW HOMEPAGE STYLES --- */
+        .hero-section {
+            background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent 40%),
+                        radial-gradient(circle at bottom left, rgba(15, 23, 42, 0.03), transparent 40%),
+                        var(--bg-body);
+            padding: 120px 24px 100px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-section::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.03) 0%, transparent 60%);
+            z-index: 0; animation: rotate 60s linear infinite; pointer-events: none;
+        }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .hero-content { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; }
+        
+        .hero-badges { display: flex; justify-content: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+        .hero-badge { 
+            background: rgba(59, 130, 246, 0.1); color: var(--accent); 
+            padding: 6px 16px; border-radius: 100px; font-size: 12px; font-weight: 600; 
+            letter-spacing: 0.05em; text-transform: uppercase; border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        
+        .hero-title { 
+            font-size: 56px; line-height: 1.2; font-weight: 800; letter-spacing: -0.03em; 
+            margin-bottom: 24px; background: linear-gradient(to right, var(--primary), var(--accent)); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+            padding-bottom: 10px; /* Ensure descenders aren't cut off */
+        }
+        .hero-sub { font-size: 20px; color: var(--text-muted); margin-bottom: 40px; line-height: 1.6; max-width: 600px; margin-left: auto; margin-right: auto; }
+
+        .stats-strip {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px; padding: 40px 24px; background: var(--primary); color: white;
+            text-align: center;
+        }
+        .stat-val { font-size: 36px; font-weight: 700; font-family: var(--font-mono); margin-bottom: 4px; color: var(--accent); }
+        .stat-label { font-size: 14px; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.05em; }
+
+        .section-header { text-align: center; margin: 80px 0 40px; }
+        .section-title { font-size: 32px; font-family: var(--font-serif); margin-bottom: 12px; }
+        .section-sub { color: var(--text-muted); max-width: 500px; margin: 0 auto; }
+
+        /* How It Works Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            max-width: 1200px;
+            margin: 0 auto 80px;
+            padding: 0 24px;
+        }
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            transition: all 0.3s var(--ease-out-expo);
+            position: relative;
+            overflow: hidden;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent);
+        }
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 24px;
+            background: rgba(59, 130, 246, 0.1);
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .feature-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--primary);
+        }
+        .feature-desc {
+            color: var(--text-muted);
+            line-height: 1.6;
+            font-size: 15px;
+        }
+        .model-card {
+            background: var(--bg-card); 
+            border: 1px solid var(--border); 
+            border-radius: 16px; 
+            padding: 28px;
+            position: relative; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column;
+            transition: all 0.3s var(--ease-out-expo);
+        }
+        .model-card:hover { 
+            transform: translateY(-6px); 
+            box-shadow: var(--shadow-lg); 
+            border-color: var(--accent); 
+        }
+        .model-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(to right, var(--accent), var(--primary));
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .model-card:hover::before { opacity: 1; }
+        .model-icon { 
+            width: 56px; height: 56px; 
+            background: rgba(59, 130, 246, 0.08); 
+            color: var(--accent); 
+            border-radius: 14px; 
+            display: flex; align-items: center; justify-content: center; 
+            margin-bottom: 20px; 
+            font-size: 28px; 
+            transition: transform 0.3s;
+        }
+        .model-card:hover .model-icon { transform: scale(1.1) rotate(5deg); background: var(--accent); color: white; }
+        .model-name { font-size: 20px; font-weight: 700; margin-bottom: 10px; color: var(--primary); }
+        .model-desc { color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 24px; flex: 1; }
+
+        .roadmap-container { overflow-x: auto; padding: 40px 24px; -ms-overflow-style: none; scrollbar-width: none; }
+        .roadmap-container::-webkit-scrollbar { display: none; }
+        .roadmap { display: flex; align-items: center; min-width: max-content; padding: 0 20px; }
+        .roadmap-node {
+            position: relative; padding: 16px 24px; background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 100px; font-weight: 600; color: var(--text-muted); cursor: pointer;
+            margin-right: 40px; white-space: nowrap;
+        }
+        .roadmap-node::after {
+            content: ''; position: absolute; right: -41px; top: 50%; width: 40px; height: 2px; background: var(--border); z-index: -1;
+        }
+        .roadmap-node:last-child { margin-right: 0; }
+        .roadmap-node:last-child::after { display: none; }
+        .roadmap-node:hover, .roadmap-node.active { background: var(--accent); color: white; border-color: var(--accent); transform: scale(1.05); }
+        .roadmap-node:hover::after { background: var(--accent); }
+
+        .quiz-widget {
+            max-width: 600px; margin: 0 auto; background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 24px; padding: 40px; text-align: center; box-shadow: var(--shadow-lg);
+        }
+        .quiz-options { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+        .quiz-btn {
+            padding: 12px 24px; border: 1px solid var(--border); background: transparent; border-radius: 100px;
+            cursor: pointer; font-weight: 500;
+        }
+        .quiz-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(59, 130, 246, 0.05); }
+
+        .testimonial { background: var(--primary); color: white; padding: 60px 24px; text-align: center; margin-top: 60px; }
+        .quote { font-family: var(--font-serif); font-size: 28px; font-style: italic; max-width: 800px; margin: 0 auto 20px; opacity: 0.9; }
+        .author { font-size: 14px; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6; }
+
+        /* Utility */
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .mt-4 { margin-top: 16px; }
+        
+        /* Chart Overrides */
+        canvas { max-height: 300px; }
+
+        /* Layout Overrides for Top Inputs */
+        .model-layout { display: flex; flex-direction: column; gap: 32px; }
+        .input-panel { 
+            width: 100%; 
+            background: var(--bg-card); 
+            border: 1px solid var(--border); 
+            border-radius: var(--radius); 
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .input-panel .card { border: none; box-shadow: none; padding: 0; background: transparent; }
+        .input-panel .card-title { font-size: 18px; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 20px; }
+        
+        .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; border-bottom: 1px solid var(--border); padding-bottom: 24px; }
+        .page-heading { font-family: var(--font-serif); font-size: 32px; color: var(--primary); margin-bottom: 8px; }
+        .page-subheading { color: var(--text-muted); font-size: 16px; }
+        .metric-card { background: var(--bg-card); border: 1px solid var(--border); padding: 16px; border-radius: 8px; }
+        .metric-value { font-size: 24px; font-weight: 700; font-family: var(--font-mono); color: var(--primary); }
+        .metric-value.hero { font-size: 32px; color: var(--accent); }
+        .metric-label { font-size: 12px; text-transform: uppercase; color: var(--text-muted); font-weight: 600; letter-spacing: 0.05em; }
+        .metric-sub { font-size: 12px; color: var(--text-muted); }
+        .positive { color: #10B981; }
+        .negative { color: #EF4444; }
+        .tag { background: rgba(59, 130, 246, 0.1); color: var(--accent); padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 600; margin-right: 8px; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+        .tab-btn { background: none; border: none; padding: 8px 16px; cursor: pointer; color: var(--text-muted); font-weight: 500; border-radius: 6px; }
+        .tab-btn.active { background: var(--accent); color: white; }
+        .input-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .input-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    </style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav class="navbar">
+    <div class="nav-brand">FinModel<span>Pro</span></div>
+    <div class="nav-links">
+        <button class="nav-link active" onclick="showPage('home')">Home</button>
+        <button class="nav-link" onclick="showPage('dcf')">DCF</button>
+        <button class="nav-link" onclick="showPage('lbo')">LBO</button>
+        <button class="nav-link" onclick="showPage('comps')">Comps</button>
+        <button class="nav-link" onclick="showPage('3stmt')">3-Stmt</button>
+        <button class="nav-link" onclick="showPage('wacc')">WACC</button>
+        <button class="nav-link" onclick="showPage('ma')">M&A</button>
+        <button class="nav-link" onclick="showPage('ratios')">Ratios</button>
+        <button class="nav-link" onclick="showPage('ipo')">IPO</button>
+        <button class="nav-link" onclick="showPage('bond')">Bond</button>
+        <button class="nav-link" onclick="showPage('sens')">Sensitivity</button>
+        <button class="nav-link" onclick="showPage('forecast')">Forecast</button>
+        <button class="nav-link" onclick="showPage('glossary')">Glossary</button>
+    </div>
+    <div class="nav-actions">
+        <button class="nav-link" onclick="saveData()">Save Work</button>
+    </div>
+</nav>
+
+<div class="page-content" id="main-container">
+    
+    <!-- HOME PAGE / LANDING -->
+    <div id="page-home" class="page-section" style="max-width: 100%; padding: 0;">
+        
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <div class="hero-content">
+                <div class="hero-badges">
+                    <span class="hero-badge">v2.0 Released</span>
+                    <span class="hero-badge">Institutional Grade</span>
+                    <span class="hero-badge">100% Client-Side</span>
+                </div>
+                <h1 class="hero-title">From Raw Data to<br>Valuation-Ready Insights</h1>
+                <p class="hero-sub">The comprehensive financial modelling toolkit inspired by Goldman Sachs, JPMorgan, and BlackRock analyst workflows. Build institutional-grade models in seconds.</p>
+                
+                <!-- Market Pulse Dashboard -->
+                <div class="market-pulse-dashboard" style="max-width: 800px; margin: 0 auto 48px; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; text-align: left;">
+                    <div style="background: rgba(59, 130, 246, 0.04); padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 18px;">📊</span> Market Pulse
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-muted); background: white; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border);">Live Assumptions</div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); padding: 24px; gap: 24px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; font-weight: 600;">Risk-Free Rate (10Y)</div>
+                            <div style="font-size: 24px; font-weight: 700; color: var(--primary); font-family: var(--font-mono);">4.25%</div>
+                            <div style="font-size: 11px; color: #10B981; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                <span>▲</span> 0.05% <span style="color: var(--text-muted); opacity: 0.7;">(Today)</span>
+                            </div>
+                        </div>
+                        <div style="text-align: center; position: relative;">
+                            <div style="position: absolute; left: 0; top: 10%; bottom: 10%; width: 1px; background: var(--border);"></div>
+                            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; font-weight: 600;">Market Risk Premium</div>
+                            <div style="font-size: 24px; font-weight: 700; color: var(--primary); font-family: var(--font-mono);">5.50%</div>
+                            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Stable Outlook</div>
+                        </div>
+                        <div style="text-align: center; position: relative;">
+                            <div style="position: absolute; left: 0; top: 10%; bottom: 10%; width: 1px; background: var(--border);"></div>
+                            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; font-weight: 600;">Global Tax Rate</div>
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                <input type="number" id="global_tax" value="21.0" step="0.1" onchange="updateGlobalAssumptions()" style="width: 70px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; text-align: center; font-family: var(--font-mono); font-weight: 700; color: var(--primary); font-size: 18px; background: var(--bg-body);">
+                                <span style="font-size: 14px; font-weight: 600; color: var(--text-muted);">%</span>
+                            </div>
+                            <div style="font-size: 11px; color: var(--accent); margin-top: 4px; cursor: pointer; opacity: 0.8;">Editable</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 16px; justify-content: center;">
+                    <button onclick="document.getElementById('models-grid').scrollIntoView({behavior: 'smooth'})" class="btn btn-primary" style="padding: 12px 32px; font-size: 16px;">Start Modelling</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Strip -->
+        <div class="stats-strip" id="stats-strip">
+            <div>
+                <div class="stat-val" data-target="14">0</div>
+                <div class="stat-label">Core Models</div>
+            </div>
+            <div>
+                <div class="stat-val" data-target="50">0+</div>
+                <div class="stat-label">Calculated Outputs</div>
+            </div>
+            <div>
+                <div class="stat-val" data-target="80">0+</div>
+                <div class="stat-label">Formula Refs</div>
+            </div>
+            <div>
+                <div class="stat-val" data-target="10000">0+</div>
+                <div class="stat-label">Analyst Users</div>
+            </div>
+        </div>
+
+        <!-- Skill Roadmap -->
+        <div class="section-header">
+            <h2 class="section-title">Analyst Skill Roadmap</h2>
+            <p class="section-sub">Follow the recommended learning path from basic concepts to advanced valuation techniques.</p>
+        </div>
+        <div class="roadmap-container">
+            <div class="roadmap">
+                <div class="roadmap-node" onclick="showPage('glossary')">Beginner</div>
+                <div class="roadmap-node" onclick="showPage('wacc')">WACC</div>
+                <div class="roadmap-node" onclick="showPage('3stmt')">3-Statement</div>
+                <div class="roadmap-node" onclick="showPage('dcf')">DCF</div>
+                <div class="roadmap-node" onclick="showPage('comps')">Comps</div>
+                <div class="roadmap-node" onclick="showPage('sens')">Sensitivity</div>
+                <div class="roadmap-node" onclick="showPage('forecast')">Forecasting</div>
+                <div class="roadmap-node" onclick="showPage('lbo')">LBO</div>
+                <div class="roadmap-node" onclick="showPage('ma')">M&A</div>
+                <div class="roadmap-node" onclick="showPage('ipo')">IPO</div>
+                <div class="roadmap-node" style="cursor: default; color: var(--primary); border-color: var(--primary);">Expert</div>
+            </div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="section-header">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-sub">Institutional-grade analysis in three simple steps.</p>
+        </div>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📝</div>
+                <h3 class="feature-title">1. Input Data</h3>
+                <p class="feature-desc">Enter historical financials and key assumptions into the model. Our intuitive interface guides you through the process.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚙️</div>
+                <h3 class="feature-title">2. Automated Calculation</h3>
+                <p class="feature-desc">Complex formulas run instantly in your browser. No server lag, no data uploads. Your data stays on your device.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💡</div>
+                <h3 class="feature-title">3. Valuation Insight</h3>
+                <p class="feature-desc">Visualize outputs with dynamic charts, sensitivity tables, and football field analysis to drive decisions.</p>
+            </div>
+        </div>
+
+        <!-- Who This Is For -->
+        <div class="section-header">
+            <h2 class="section-title">Who This Is For</h2>
+            <p class="section-sub">Tailored for every stage of your finance career.</p>
+        </div>
+        <div style="display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; padding: 0 24px; margin-bottom: 64px;">
+            <div class="card" style="flex: 1; min-width: 280px; text-align: center;">
+                <h3 style="font-size: 20px; margin-bottom: 12px; color: var(--primary);">Students</h3>
+                <p style="color: var(--text-muted);">Master the technicals before your first internship. Bridge the gap between theory and practice.</p>
+            </div>
+            <div class="card" style="flex: 1; min-width: 280px; text-align: center;">
+                <h3 style="font-size: 20px; margin-bottom: 12px; color: var(--primary);">Aspiring Analysts</h3>
+                <p style="color: var(--text-muted);">Build a portfolio of models to showcase in interviews. Demonstrate deal-readiness.</p>
+            </div>
+            <div class="card" style="flex: 1; min-width: 280px; text-align: center;">
+                <h3 style="font-size: 20px; margin-bottom: 12px; color: var(--primary);">Interview Preppers</h3>
+                <p style="color: var(--text-muted);">Practice building models from scratch. Speed up your workflow for technical tests.</p>
+            </div>
+        </div>
+
+        <!-- What's Inside (Grid) -->
+        <div id="models-grid" class="section-header">
+            <h2 class="section-title">What's Inside</h2>
+            <p class="section-sub">Comprehensive tools for every stage of the deal process.</p>
+        </div>
+        <div class="models-grid-container">
+            <!-- DCF -->
+            <div class="model-card" onclick="showPage('dcf')">
+                <div class="model-icon">💎</div>
+                <div class="model-name">DCF Valuation</div>
+                <div class="model-desc">Determine intrinsic value by forecasting free cash flows and discounting them to present value.</div>
+                <button class="btn btn-outline" style="width: 100%;">Launch Model</button>
+            </div>
+            <!-- 3-Stmt -->
+            <div class="model-card" onclick="showPage('3stmt')">
+                <div class="model-icon">📊</div>
+                <div class="model-name">3-Statement</div>
+                <div class="model-desc">Integrated Income Statement, Balance Sheet, and Cash Flow Statement modeling.</div>
+                <button class="btn btn-outline" style="width: 100%;">Launch Model</button>
+            </div>
+            <!-- Comps -->
+            <div class="model-card" onclick="showPage('comps')">
+                <div class="model-icon">⚖️</div>
+                <div class="model-name">Comps Analysis</div>
+                <div class="model-desc">Relative valuation benchmarking against peer group multiples.</div>
+                <button class="btn btn-outline" style="width: 100%;">Launch Model</button>
+            </div>
+            <!-- WACC -->
+            <div class="model-card" onclick="showPage('wacc')">
+                <div class="model-icon">📉</div>
+                <div class="model-name">WACC</div>
+                <div class="model-desc">Calculate Weighted Average Cost of Capital using CAPM and capital structure.</div>
+                <button class="btn btn-outline" style="width: 100%;">Launch Model</button>
+            </div>
+            <!-- Sensitivity -->
+            <div class="model-card" onclick="showPage('sens')">
+                <div class="model-icon">🎯</div>
+                <div class="model-name">Sensitivity</div>
+                <div class="model-desc">Stress-test valuation assumptions with dynamic data tables.</div>
+                <button class="btn btn-outline" style="width: 100%;">Launch Model</button>
+            </div>
+            <!-- Forecasting -->
+            <div class="model-card" onclick="showPage('forecast')">
+                <div class="model-icon">🔮</div>
+                <div class="model-name">Forecasting</div>
+                <div class="model-desc">Project future revenues using CAGR, linear regression, or fixed growth.</div>
+                <button class="btn btn-outline" style="width: 100%;">Launch Model</button>
+            </div>
+            <!-- LBO -->
+            <div class="model-card" onclick="showPage('lbo')">
+                <div class="model-icon">🏦</div>
+                <div class="model-name">LBO Model</div>
+                <div class="model-desc">Leveraged buyout returns analysis (IRR/MOIC) with debt paydown.</div>
+                <button class="btn btn-outline" style="width: 100%;">Launch Model</button>
+            </div>
+            <!-- M&A -->
+            <div class="model-card" onclick="showPage('ma')">
+                <div class="model-icon">🤝</div>
+                <div class="model-name">M&A Model</div>
+                <div class="model-desc">Accretion/Dilution analysis for strategic acquisitions.</div>
+                <button class="btn btn-outline" style="width: 100%;">Launch Model</button>
+            </div>
+            <!-- IPO -->
+            <div class="model-card" onclick="showPage('ipo')">
+                <div class="model-icon">🔔</div>
+                <div class="model-name">IPO Model</div>
+                <div class="model-desc">Initial Public Offering pricing, proceeds, and dilution modeling.</div>
+                <button class="btn btn-outline" style="width: 100%;">Launch Model</button>
+            </div>
+            <!-- Bond -->
+            <div class="model-card" onclick="showPage('bond')">
+                <div class="model-icon">📜</div>
+                <div class="model-name">Bond Valuation</div>
+                <div class="model-desc">Fixed income pricing, duration, and convexity analysis.</div>
+                <button class="btn btn-outline" style="width: 100%;">Launch Model</button>
+            </div>
+            <!-- Ratios -->
+            <div class="model-card" onclick="showPage('ratios')">
+                <div class="model-icon">➗</div>
+                <div class="model-name">Ratios</div>
+                <div class="model-desc">Comprehensive liquidity, profitability, and solvency analysis.</div>
+                <button class="btn btn-outline" style="width: 100%;">Launch Model</button>
+            </div>
+        </div>
+
+        <!-- Quiz Widget -->
+        <div class="section-header">
+            <h2 class="section-title">Model Selector</h2>
+            <p class="section-sub">Not sure where to start? Let us guide you.</p>
+        </div>
+        <div class="quiz-widget" id="quiz-widget">
+            <h3 id="quiz-q" style="font-size: 20px; margin-bottom: 16px;">What's your primary goal?</h3>
+            <div class="quiz-options" id="quiz-opts">
+                <button class="quiz-btn" onclick="nextQuiz('goal', 'prep')">Internship Prep</button>
+                <button class="quiz-btn" onclick="nextQuiz('goal', 'work')">Live Deal Work</button>
+                <button class="quiz-btn" onclick="nextQuiz('goal', 'study')">CFA / Academic</button>
+            </div>
+        </div>
+
+        <!-- Testimonial -->
+        <div class="testimonial">
+            <div class="quote">"The exact framework used in IB analyst training programs"</div>
+            <div class="author">Senior Associate, Bulge Bracket Bank</div>
+        </div>
+
+        <!-- CTA Banner -->
+        <div style="text-align: center; padding: 80px 24px; background: var(--bg-card); border-top: 1px solid var(--border);">
+            <h2 style="font-size: 32px; font-family: var(--font-serif); margin-bottom: 16px;">Start Modelling Now — Choose Your Framework</h2>
+            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 32px;">
+                <button onclick="showPage('dcf')" class="btn btn-primary">DCF</button>
+                <button onclick="showPage('3stmt')" class="btn btn-primary">3-Statement</button>
+                <button onclick="showPage('comps')" class="btn btn-primary">Comps</button>
+                <button onclick="showPage('wacc')" class="btn btn-primary">WACC</button>
+                <button onclick="showPage('forecast')" class="btn btn-primary">Forecasting</button>
+                <button onclick="showPage('sens')" class="btn btn-primary">Sensitivity</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- DCF PAGE -->
+    <div id="page-dcf" class="page-section hidden">
+        <div class="page-header">
+            <div class="page-header-inner">
+                <div class="page-breadcrumb">FinModel Pro / Valuation</div>
+                <h1 class="page-heading">Discounted Cash Flow (DCF)</h1>
+                <p class="page-subheading">Determine intrinsic value by forecasting free cash flows and discounting them to present value.</p>
+                <div class="page-tags"><span class="tag">Valuation</span><span class="tag">Equity Research</span></div>
+            </div>
+            <div class="page-header-actions">
+                <button class="nav-link" onclick="resetInputs('dcf')">Reset</button>
+            </div>
+        </div>
+
+        <div class="model-layout">
+            <!-- INPUTS -->
+            <div class="input-panel">
+                <div class="card-title">Model Inputs</div>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label class="form-label">WACC (%) <span class="info-icon" title="Weighted Average Cost of Capital">ℹ</span></label>
+                        <input type="number" id="dcf_wacc" class="form-input" value="10.0" step="0.1" placeholder="e.g. 10.0" oninput="calcDCF()">
+                        <div class="form-helper">Discount rate for future cash flows.</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Terminal Growth Rate (%) <span class="info-icon" title="Long-term growth rate">ℹ</span></label>
+                        <input type="number" id="dcf_tgr" class="form-input" value="2.5" step="0.1" placeholder="e.g. 2.5" oninput="calcDCF()">
+                        <div class="form-helper">Perpetuity growth rate (usually GDP).</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Shares Outstanding (M)</label>
+                        <input type="number" id="dcf_shares" class="form-input" value="100" placeholder="e.g. 100" oninput="calcDCF()">
+                        <div class="form-helper">Total diluted shares.</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Net Debt ($M)</label>
+                        <input type="number" id="dcf_net_debt" class="form-input" value="500" placeholder="e.g. 500" oninput="calcDCF()">
+                        <div class="form-helper">Total Debt - Cash.</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tax Rate (%)</label>
+                        <input type="number" id="dcf_tax" class="form-input" value="21.0" step="0.1" placeholder="e.g. 21.0" oninput="calcDCF()">
+                        <div class="form-helper">Effective corporate tax rate.</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">EBIT Margin (%)</label>
+                        <input type="number" id="dcf_margin" class="form-input" value="15.0" step="0.1" placeholder="e.g. 15.0" oninput="calcDCF()">
+                        <div class="form-helper">Operating profit margin.</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">D&A (% Rev)</label>
+                        <input type="number" id="dcf_da_pct" class="form-input" value="4.0" step="0.1" placeholder="e.g. 4.0" oninput="calcDCF()">
+                        <div class="form-helper">Depreciation & Amortization.</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CapEx (% Rev)</label>
+                        <input type="number" id="dcf_capex_pct" class="form-input" value="3.5" step="0.1" placeholder="e.g. 3.5" oninput="calcDCF()">
+                        <div class="form-helper">Capital Expenditures.</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">NWC (% Rev)</label>
+                        <input type="number" id="dcf_nwc_pct" class="form-input" value="2.0" step="0.1" placeholder="e.g. 2.0" oninput="calcDCF()">
+                        <div class="form-helper">Net Working Capital investment.</div>
+                    </div>
+                </div>
+                
+                <div class="card-title" style="margin-top: 24px;">Revenue Projections ($M)</div>
+                <div class="input-grid" style="grid-template-columns: repeat(5, 1fr);">
+                    <div class="form-group">
+                        <label class="form-label">Year 1</label>
+                        <input type="number" id="dcf_rev_1" class="form-input" value="1000" placeholder="Y1" oninput="calcDCF()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Year 2</label>
+                        <input type="number" id="dcf_rev_2" class="form-input" value="1100" placeholder="Y2" oninput="calcDCF()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Year 3</label>
+                        <input type="number" id="dcf_rev_3" class="form-input" value="1210" placeholder="Y3" oninput="calcDCF()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Year 4</label>
+                        <input type="number" id="dcf_rev_4" class="form-input" value="1331" placeholder="Y4" oninput="calcDCF()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Year 5</label>
+                        <input type="number" id="dcf_rev_5" class="form-input" value="1464" placeholder="Y5" oninput="calcDCF()">
+                    </div>
+                </div>
+
+                <div class="card-title" style="margin-top: 24px;">Scenario Analysis (WACC / Growth)</div>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label class="form-label">Bear WACC</label>
+                        <input type="number" id="dcf_bear_wacc" class="form-input" value="12.0" placeholder="%" oninput="calcDCF()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Base WACC</label>
+                        <input type="number" id="dcf_base_wacc" class="form-input" value="10.0" placeholder="%" oninput="calcDCF()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Bull WACC</label>
+                        <input type="number" id="dcf_bull_wacc" class="form-input" value="8.0" placeholder="%" oninput="calcDCF()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Bear g%</label>
+                        <input type="number" id="dcf_bear_g" class="form-input" value="1.5" placeholder="%" oninput="calcDCF()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Base g%</label>
+                        <input type="number" id="dcf_base_g" class="form-input" value="2.5" placeholder="%" oninput="calcDCF()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Bull g%</label>
+                        <input type="number" id="dcf_bull_g" class="form-input" value="3.5" placeholder="%" oninput="calcDCF()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- OUTPUTS -->
+            <div class="output-panel">
+                <div class="alert alert-error" id="dcf_alert">
+                    <span>⚠ WACC must be greater than Terminal Growth Rate.</span>
+                </div>
+
+                <div class="input-row-3" style="margin-bottom: 24px;">
+                    <div class="metric-card">
+                        <div class="metric-label">Implied Share Price</div>
+                        <div class="metric-value hero" id="dcf_price">$0.00</div>
+                        <div class="metric-sub" id="dcf_upside">0.0% Upside</div>
+
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Enterprise Value</div>
+                        <div class="metric-value" id="dcf_ev">$0.00</div>
+                        <div class="metric-sub">PV of FCF + PV of TV</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Equity Value</div>
+                        <div class="metric-value" id="dcf_equity">$0.00</div>
+                        <div class="metric-sub">EV - Net Debt</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Free Cash Flow Forecast</div>
+                    <div class="chart-container">
+                        <canvas id="dcfChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Valuation Bridge</div>
+                    <table class="fin-table">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Year 1</th>
+                                <th>Year 2</th>
+                                <th>Year 3</th>
+                                <th>Year 4</th>
+                                <th>Year 5</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dcf_table_body">
+                            <!-- JS Injected -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Scenario Analysis (Implied Price)</div>
+                    <div class="input-row-3">
+                        <div class="metric-card" style="border-left-color: var(--danger);">
+                            <div class="metric-label">Bear Case</div>
+                            <div class="metric-value" id="dcf_bear_res">$0.00</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Base Case</div>
+                            <div class="metric-value" id="dcf_base_res">$0.00</div>
+                        </div>
+                        <div class="metric-card" style="border-left-color: var(--success);">
+                            <div class="metric-label">Bull Case</div>
+                            <div class="metric-value" id="dcf_bull_res">$0.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <details class="formula-details">
+                    <summary>Formula Reference</summary>
+                    <div class="formula-content">
+                        <div class="formula-item">
+                            <div class="formula-name">Free Cash Flow (FCFF)</div>
+                            <div class="formula-eq">NOPAT + D&A - CapEx - ΔNWC</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="formula-name">Terminal Value (Perpetuity)</div>
+                            <div class="formula-eq">FCF<span class="var">n</span> × (1 + <span class="var">g</span>) / (<span class="var">WACC</span> - <span class="var">g</span>)</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="formula-name">Enterprise Value</div>
+                            <div class="formula-eq">Σ PV(FCFF) + PV(Terminal Value)</div>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </div>
+    </div>
+
+    <!-- LBO PAGE -->
+    <div id="page-lbo" class="page-section hidden">
+        <div class="page-header">
+            <div class="page-header-inner">
+                <div class="page-breadcrumb">FinModel Pro / Private Equity</div>
+                <h1 class="page-heading">Leveraged Buyout (LBO)</h1>
+                <p class="page-subheading">Analyze returns (IRR/MOIC) for a potential buyout using debt leverage.</p>
+                <div class="page-tags"><span class="tag">Private Equity</span><span class="tag">M&A</span></div>
+            </div>
+             <div class="page-header-actions">
+                <button class="nav-link" onclick="resetInputs('lbo')">Reset</button>
+            </div>
+        </div>
+        <div class="model-layout">
+            <div class="input-panel">
+                <div class="card">
+                    <div class="card-title" style="margin-bottom:16px;">Entry Assumptions</div>
+                    <div class="form-group">
+                        <label class="form-label">Entry EBITDA ($M)</label>
+                        <input type="number" id="lbo_entry_ebitda" class="form-input" value="100" placeholder="e.g. 100" oninput="calcLBO()">
+                        <div class="form-helper">LTM EBITDA.</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Entry Multiple (x)</label>
+                        <input type="number" id="lbo_entry_mult" class="form-input" value="10.0" step="0.5" placeholder="e.g. 10.0" oninput="calcLBO()">
+                        <div class="form-helper">EV / EBITDA multiple.</div>
+                    </div>
+                     <div class="form-group">
+                        <label class="form-label">Transaction Fees (%)</label>
+                        <input type="number" id="lbo_fees" class="form-input" value="2.0" step="0.1" placeholder="e.g. 2.0" oninput="calcLBO()">
+                        <div class="form-helper">% of Enterprise Value.</div>
+                    </div>
+                    
+                    <div class="section-title" style="margin-top:24px;">Debt Tranches (Lev x / Rate %)</div>
+                    <div class="input-row-2">
+                        <div>
+                            <label class="form-label">Sr. Secured</label>
+                            <input type="number" id="lbo_lev_sen" class="form-input" value="3.0" step="0.1" placeholder="x EBITDA" oninput="calcLBO()">
+                        </div>
+                        <div>
+                            <label class="form-label">Rate %</label>
+                            <input type="number" id="lbo_rate_sen" class="form-input" value="6.0" step="0.1" placeholder="%" oninput="calcLBO()">
+                        </div>
+                    </div>
+                    <div class="input-row-2" style="margin-top:8px;">
+                         <div>
+                            <label class="form-label">Sr. Unsecured</label>
+                            <input type="number" id="lbo_lev_unsec" class="form-input" value="1.0" step="0.1" placeholder="x EBITDA" oninput="calcLBO()">
+                        </div>
+                        <div>
+                            <label class="form-label">Rate %</label>
+                            <input type="number" id="lbo_rate_unsec" class="form-input" value="8.0" step="0.1" placeholder="%" oninput="calcLBO()">
+                        </div>
+                    </div>
+                    <div class="input-row-2" style="margin-top:8px;">
+                         <div>
+                            <label class="form-label">Subordinated</label>
+                            <input type="number" id="lbo_lev_sub" class="form-input" value="1.0" step="0.1" placeholder="x EBITDA" oninput="calcLBO()">
+                        </div>
+                        <div>
+                            <label class="form-label">Rate %</label>
+                            <input type="number" id="lbo_rate_sub" class="form-input" value="12.0" step="0.1" placeholder="%" oninput="calcLBO()">
+                        </div>
+                    </div>
+
+                    <div class="section-title" style="margin-top:24px;">Operations & Exit</div>
+                    <div class="form-group">
+                        <label class="form-label">Revenue Growth & EBITDA Margin Forecast</label>
+                        <table class="fin-table" style="margin-top: 8px;">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>Year 1</th>
+                                    <th>Year 2</th>
+                                    <th>Year 3</th>
+                                    <th>Year 4</th>
+                                    <th>Year 5</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="font-weight: 600;">Rev Growth (%)</td>
+                                    <td><input type="number" id="lbo_g_1" class="form-input" value="5" oninput="calcLBO()" style="width: 100%; text-align: center;"></td>
+                                    <td><input type="number" id="lbo_g_2" class="form-input" value="5" oninput="calcLBO()" style="width: 100%; text-align: center;"></td>
+                                    <td><input type="number" id="lbo_g_3" class="form-input" value="5" oninput="calcLBO()" style="width: 100%; text-align: center;"></td>
+                                    <td><input type="number" id="lbo_g_4" class="form-input" value="5" oninput="calcLBO()" style="width: 100%; text-align: center;"></td>
+                                    <td><input type="number" id="lbo_g_5" class="form-input" value="5" oninput="calcLBO()" style="width: 100%; text-align: center;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: 600;">EBITDA Margin (%)</td>
+                                    <td><input type="number" id="lbo_m_1" class="form-input" value="25" oninput="calcLBO()" style="width: 100%; text-align: center;"></td>
+                                    <td><input type="number" id="lbo_m_2" class="form-input" value="26" oninput="calcLBO()" style="width: 100%; text-align: center;"></td>
+                                    <td><input type="number" id="lbo_m_3" class="form-input" value="27" oninput="calcLBO()" style="width: 100%; text-align: center;"></td>
+                                    <td><input type="number" id="lbo_m_4" class="form-input" value="28" oninput="calcLBO()" style="width: 100%; text-align: center;"></td>
+                                    <td><input type="number" id="lbo_m_5" class="form-input" value="29" oninput="calcLBO()" style="width: 100%; text-align: center;"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Exit Year</label>
+                        <select id="lbo_exit_year" class="form-input" oninput="calcLBO()">
+                            <option value="3">Year 3</option>
+                            <option value="4">Year 4</option>
+                            <option value="5" selected>Year 5</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Exit Multiple (x)</label>
+                        <input type="number" id="lbo_exit_mult" class="form-input" value="10.0" step="0.5" oninput="calcLBO()">
+                    </div>
+                     <div class="form-group">
+                        <label class="form-label">Tax Rate (%)</label>
+                        <input type="number" id="lbo_tax" class="form-input" value="21.0" step="0.1" oninput="calcLBO()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CapEx (% Rev)</label>
+                        <input type="number" id="lbo_capex" class="form-input" value="3.0" step="0.1" oninput="calcLBO()">
+                    </div>
+                </div>
+            </div>
+            <div class="output-panel">
+                <div class="input-row-2" style="margin-bottom: 24px;">
+                    <div class="metric-card">
+                        <div class="metric-label">IRR</div>
+                        <div class="metric-value hero" id="lbo_irr">0.0%</div>
+                        <div class="metric-sub">Internal Rate of Return</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">MOIC</div>
+                        <div class="metric-value hero" id="lbo_moic">0.00x</div>
+                        <div class="metric-sub">Multiple of Invested Capital</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Sources & Uses</div>
+                    <table class="fin-table" id="lbo_su_table">
+                        <!-- JS Injected -->
+                    </table>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Debt Schedule & Returns</div>
+                    <div class="chart-container">
+                        <canvas id="lboChart"></canvas>
+                    </div>
+                </div>
+                
+                <details class="formula-details">
+                    <summary>Formula Reference</summary>
+                    <div class="formula-content">
+                        <div class="formula-item">
+                            <div class="formula-name">MOIC</div>
+                            <div class="formula-eq">Exit Equity / Entry Equity</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="formula-name">Free Cash Flow (Debt Paydown)</div>
+                            <div class="formula-eq">EBITDA - Interest - Tax - CapEx - ΔNWC</div>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMPS PAGE -->
+    <div id="page-comps" class="page-section hidden">
+        <div class="page-header">
+            <div class="page-header-inner">
+                <div class="page-breadcrumb">FinModel Pro / Valuation</div>
+                <h1 class="page-heading">Comparable Company Analysis</h1>
+                <p class="page-subheading">Relative valuation based on trading multiples of peer companies.</p>
+            </div>
+        </div>
+        <div class="model-layout">
+            <div class="input-panel">
+                 <div class="card">
+                    <div class="card-title">Subject Company</div>
+                    <div class="form-group">
+                        <label class="form-label">EBITDA ($M)</label>
+                        <input type="number" id="comps_sub_ebitda" class="form-input" value="150" placeholder="e.g. 150" oninput="calcComps()">
+                        <div class="form-helper">LTM EBITDA.</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Net Debt ($M)</label>
+                        <input type="number" id="comps_sub_debt" class="form-input" value="400" placeholder="e.g. 400" oninput="calcComps()">
+                        <div class="form-helper">Total Debt - Cash.</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Shares (M)</label>
+                        <input type="number" id="comps_sub_shares" class="form-input" value="50" placeholder="e.g. 50" oninput="calcComps()">
+                        <div class="form-helper">Fully diluted shares.</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Peer Inputs (Price / EPS / EBITDA)</div>
+                    <div id="comps_inputs"></div>
+                </div>
+            </div>
+            <div class="output-panel">
+                <div class="card">
+                    <div class="card-title">Valuation Matrix</div>
+                    <table class="fin-table" id="comps_table"></table>
+                </div>
+                <div class="input-row-3">
+                    <div class="metric-card">
+                        <div class="metric-label">Implied Price (Low)</div>
+                        <div class="metric-value" id="comps_low">$0.00</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Implied Price (Mean)</div>
+                        <div class="metric-value" id="comps_mean">$0.00</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Implied Price (High)</div>
+                        <div class="metric-value" id="comps_high">$0.00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WACC PAGE -->
+    <div id="page-wacc" class="page-section hidden">
+        <div class="page-header">
+            <div class="page-header-inner">
+                <h1 class="page-heading">WACC Calculation</h1>
+                <p class="page-subheading">Weighted Average Cost of Capital.</p>
+            </div>
+        </div>
+        <div class="model-layout">
+            <div class="input-panel">
+                <div class="card">
+                    <div class="card-title">Cost of Equity (CAPM)</div>
+                    <div class="form-group">
+                        <label class="form-label">Risk-Free Rate (%)</label>
+                        <input type="number" id="wacc_rf" class="form-input" value="4.0" step="0.1" placeholder="e.g. 4.0" oninput="calcWACC()">
+                        <div class="form-helper">10Y Treasury Yield.</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Beta</label>
+                        <input type="number" id="wacc_beta" class="form-input" value="1.2" step="0.05" placeholder="e.g. 1.2" oninput="calcWACC()">
+                        <div class="form-helper">Levered Beta.</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Equity Risk Premium (%)</label>
+                        <input type="number" id="wacc_erp" class="form-input" value="5.5" step="0.1" placeholder="e.g. 5.5" oninput="calcWACC()">
+                        <div class="form-helper">Expected market return - Risk-free rate.</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Cost of Debt</div>
+                    <div class="form-group">
+                        <label class="form-label">Pre-Tax Cost of Debt (%)</label>
+                        <input type="number" id="wacc_kd" class="form-input" value="6.0" step="0.1" placeholder="e.g. 6.0" oninput="calcWACC()">
+                        <div class="form-helper">Weighted average interest rate.</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tax Rate (%)</label>
+                        <input type="number" id="wacc_tax" class="form-input" value="21.0" step="0.1" placeholder="e.g. 21.0" oninput="calcWACC()">
+                        <div class="form-helper">Marginal tax rate.</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Capital Structure</div>
+                    <div class="form-group">
+                        <label class="form-label">Equity Value ($M)</label>
+                        <input type="number" id="wacc_e" class="form-input" value="1000" placeholder="e.g. 1000" oninput="calcWACC()">
+                        <div class="form-helper">Market Capitalization.</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Debt Value ($M)</label>
+                        <input type="number" id="wacc_d" class="form-input" value="500" placeholder="e.g. 500" oninput="calcWACC()">
+                        <div class="form-helper">Total Debt (Book or Market).</div>
+                    </div>
+                </div>
+            </div>
+            <div class="output-panel">
+                <div class="metric-card">
+                    <div class="metric-label">WACC</div>
+                    <div class="metric-value hero" id="wacc_res">0.0%</div>
+                </div>
+                <div class="card">
+                    <div class="chart-container">
+                        <canvas id="waccChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OTHER PAGES (Placeholders for brevity, but IDs exist for JS) -->
+    <!-- M&A PAGE -->
+    <div id="page-ma" class="page-section hidden">
+        <div class="page-header">
+            <div class="page-header-inner">
+                <div class="page-breadcrumb">FinModel Pro / Strategic</div>
+                <h1 class="page-heading">Mergers & Acquisitions (M&A)</h1>
+                <p class="page-subheading">Analyze accretion/dilution and pro-forma impact of a strategic acquisition.</p>
+                <div class="page-tags"><span class="tag">M&A</span><span class="tag">Strategy</span></div>
+            </div>
+            <div class="page-header-actions">
+                <button class="nav-link" onclick="resetInputs('ma')">Reset</button>
+            </div>
+        </div>
+        <div class="model-layout">
+            <div class="input-panel">
+                <div class="card">
+                    <div class="card-title">Acquirer Data</div>
+                    <div class="form-group"><label class="form-label">Share Price ($)</label><input type="number" id="ma_a_price" class="form-input" value="50.00" step="0.1" placeholder="e.g. 50.00" oninput="calcMA()"></div>
+                    <div class="form-group"><label class="form-label">Shares Outstanding (M)</label><input type="number" id="ma_a_shares" class="form-input" value="200" placeholder="e.g. 200" oninput="calcMA()"></div>
+                    <div class="form-group"><label class="form-label">Net Income ($M)</label><input type="number" id="ma_a_ni" class="form-input" value="600" placeholder="e.g. 600" oninput="calcMA()"></div>
+                    <div class="form-group"><label class="form-label">Net Debt ($M)</label><input type="number" id="ma_a_debt" class="form-input" value="1000" placeholder="e.g. 1000" oninput="calcMA()"></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Target Data</div>
+                    <div class="form-group"><label class="form-label">Share Price ($)</label><input type="number" id="ma_t_price" class="form-input" value="20.00" step="0.1" placeholder="e.g. 20.00" oninput="calcMA()"></div>
+                    <div class="form-group"><label class="form-label">Shares Outstanding (M)</label><input type="number" id="ma_t_shares" class="form-input" value="100" placeholder="e.g. 100" oninput="calcMA()"></div>
+                    <div class="form-group"><label class="form-label">Net Income ($M)</label><input type="number" id="ma_t_ni" class="form-input" value="150" placeholder="e.g. 150" oninput="calcMA()"></div>
+                    <div class="form-group"><label class="form-label">Net Debt ($M)</label><input type="number" id="ma_t_debt" class="form-input" value="200" placeholder="e.g. 200" oninput="calcMA()"></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Transaction Assumptions</div>
+                    <div class="form-group"><label class="form-label">Offer Price ($)</label><input type="number" id="ma_offer_price" class="form-input" value="25.00" step="0.1" placeholder="e.g. 25.00" oninput="calcMA()"></div>
+                    <div class="form-group"><label class="form-label">% Cash Consideration</label><input type="number" id="ma_cash_pct" class="form-input" value="60" step="5" max="100" placeholder="e.g. 60" oninput="calcMA()"></div>
+                    <div class="form-group"><label class="form-label">Interest Rate on Debt (%)</label><input type="number" id="ma_debt_rate" class="form-input" value="6.0" step="0.1" placeholder="e.g. 6.0" oninput="calcMA()"></div>
+                    <div class="form-group"><label class="form-label">Synergies ($M)</label><input type="number" id="ma_synergies" class="form-input" value="50" placeholder="e.g. 50" oninput="calcMA()"></div>
+                    <div class="form-group"><label class="form-label">Tax Rate (%)</label><input type="number" id="ma_tax" class="form-input" value="21.0" step="0.1" placeholder="e.g. 21.0" oninput="calcMA()"></div>
+                    <div class="form-group"><label class="form-label">Transaction Fees ($M)</label><input type="number" id="ma_fees" class="form-input" value="15" placeholder="e.g. 15" oninput="calcMA()"></div>
+                </div>
+            </div>
+            <div class="output-panel">
+                <div class="input-row-2">
+                    <div class="metric-card">
+                        <div class="metric-label">Accretion / (Dilution) $</div>
+                        <div class="metric-value hero" id="ma_acc_val">$0.00</div>
+                        <div class="metric-sub">Per Share Impact</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Accretion / (Dilution) %</div>
+                        <div class="metric-value hero" id="ma_acc_pct">0.0%</div>
+                        <div class="metric-sub">Relative to Standalone EPS</div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-title">Pro Forma Financials</div>
+                    <table class="fin-table">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Acquirer</th>
+                                <th>Target</th>
+                                <th>Adjustments</th>
+                                <th>Pro Forma</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ma_table_body"></tbody>
+                    </table>
+                </div>
+                <div class="card">
+                    <div class="card-title">Ownership Structure</div>
+                     <div class="chart-container">
+                        <canvas id="maChart"></canvas>
+                    </div>
+                </div>
+                 <details class="formula-details">
+                    <summary>Formula Reference</summary>
+                    <div class="formula-content">
+                        <div class="formula-item">
+                            <div class="formula-name">Pro Forma Net Income</div>
+                            <div class="formula-eq">Acquirer NI + Target NI + (Synergies × (1-t)) - (Interest Exp × (1-t))</div>
+                        </div>
+                        <div class="formula-item">
+                            <div class="formula-name">New Shares Issued</div>
+                            <div class="formula-eq">(Offer Price × Target Shares × % Stock) / Acquirer Price</div>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </div>
+    </div>
+    <!-- RATIOS PAGE -->
+    <div id="page-ratios" class="page-section hidden">
+        <div class="page-header">
+            <div class="page-header-inner">
+                <div class="page-breadcrumb">FinModel Pro / Analysis</div>
+                <h1 class="page-heading">Financial Ratios</h1>
+                <p class="page-subheading">Comprehensive analysis of liquidity, profitability, solvency, and efficiency metrics.</p>
+                <div class="page-tags"><span class="tag">Credit Analysis</span><span class="tag">Accounting</span></div>
+            </div>
+             <div class="page-header-actions">
+                <button class="nav-link" onclick="resetInputs('ratios')">Reset</button>
+            </div>
+        </div>
+        <div class="model-layout">
+            <div class="input-panel">
+                <div class="card-title">Income Statement Inputs ($M)</div>
+                <div class="input-grid">
+                    <div class="form-group"><label class="form-label">Revenue</label><input type="number" id="rat_rev" class="form-input" value="5000" placeholder="e.g. 5000" oninput="calcRatios()"></div>
+                    <div class="form-group"><label class="form-label">COGS</label><input type="number" id="rat_cogs" class="form-input" value="3000" placeholder="e.g. 3000" oninput="calcRatios()"></div>
+                    <div class="form-group"><label class="form-label">Operating Expenses</label><input type="number" id="rat_opex" class="form-input" value="1000" placeholder="e.g. 1000" oninput="calcRatios()"></div>
+                    <div class="form-group"><label class="form-label">Interest Expense</label><input type="number" id="rat_int" class="form-input" value="200" placeholder="e.g. 200" oninput="calcRatios()"></div>
+                    <div class="form-group"><label class="form-label">Net Income</label><input type="number" id="rat_ni" class="form-input" value="600" placeholder="e.g. 600" oninput="calcRatios()"></div>
+                </div>
+                
+                <div class="card-title" style="margin-top: 24px;">Balance Sheet Inputs ($M)</div>
+                <div class="input-grid">
+                    <div class="form-group"><label class="form-label">Cash & Equivalents</label><input type="number" id="rat_cash" class="form-input" value="500" placeholder="e.g. 500" oninput="calcRatios()"></div>
+                    <div class="form-group"><label class="form-label">Accounts Receivable</label><input type="number" id="rat_ar" class="form-input" value="800" placeholder="e.g. 800" oninput="calcRatios()"></div>
+                    <div class="form-group"><label class="form-label">Inventory</label><input type="number" id="rat_inv" class="form-input" value="600" placeholder="e.g. 600" oninput="calcRatios()"></div>
+                    <div class="form-group"><label class="form-label">Total Current Assets</label><input type="number" id="rat_ca" class="form-input" value="2000" placeholder="e.g. 2000" oninput="calcRatios()"></div>
+                    <div class="form-group"><label class="form-label">Total Assets</label><input type="number" id="rat_ta" class="form-input" value="8000" placeholder="e.g. 8000" oninput="calcRatios()"></div>
+                    <div class="form-group"><label class="form-label">Current Liabilities</label><input type="number" id="rat_cl" class="form-input" value="1500" placeholder="e.g. 1500" oninput="calcRatios()"></div>
+                    <div class="form-group"><label class="form-label">Total Debt</label><input type="number" id="rat_debt" class="form-input" value="3000" placeholder="e.g. 3000" oninput="calcRatios()"></div>
+                    <div class="form-group"><label class="form-label">Total Equity</label><input type="number" id="rat_eq" class="form-input" value="3500" placeholder="e.g. 3500" oninput="calcRatios()"></div>
+                </div>
+                
+                <div class="card-title" style="margin-top: 24px;">Market Data</div>
+                <div class="input-grid">
+                    <div class="form-group"><label class="form-label">Share Price ($)</label><input type="number" id="rat_price" class="form-input" value="45.00" placeholder="e.g. 45.00" oninput="calcRatios()"></div>
+                    <div class="form-group"><label class="form-label">Shares Outstanding (M)</label><input type="number" id="rat_shares" class="form-input" value="200" placeholder="e.g. 200" oninput="calcRatios()"></div>
+                </div>
+            </div>
+            <div class="output-panel">
+                <div class="card">
+                    <div class="card-title">Key Ratios</div>
+                    <table class="fin-table" id="ratios_table">
+                         <!-- JS Injected -->
+                    </table>
+                </div>
+                <div class="input-row-2">
+                     <div class="card">
+                        <div class="card-title">Profitability Mix</div>
+                        <div class="chart-container"><canvas id="ratProfChart"></canvas></div>
+                    </div>
+                     <div class="card">
+                        <div class="card-title">Liquidity Position</div>
+                        <div class="chart-container"><canvas id="ratLiqChart"></canvas></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- IPO PAGE -->
+    <div id="page-ipo" class="page-section hidden">
+        <div class="page-header">
+            <div class="page-header-inner">
+                <div class="page-breadcrumb">FinModel Pro / Capital Markets</div>
+                <h1 class="page-heading">Initial Public Offering (IPO)</h1>
+                <p class="page-subheading">Model the proceeds, dilution, and valuation of a new listing.</p>
+                <div class="page-tags"><span class="tag">ECM</span><span class="tag">Capital Raising</span></div>
+            </div>
+            <div class="page-header-actions">
+                <button class="nav-link" onclick="resetInputs('ipo')">Reset</button>
+            </div>
+        </div>
+        <div class="model-layout">
+            <div class="input-panel">
+                <div class="card-title">Valuation & Offering</div>
+                <div class="input-grid">
+                    <div class="form-group"><label class="form-label">Pre-Money Valuation ($M)</label><input type="number" id="ipo_pre_val" class="form-input" value="2000" placeholder="e.g. 2000" oninput="calcIPO()"></div>
+                    <div class="form-group"><label class="form-label">Primary Capital Raise ($M)</label><input type="number" id="ipo_raise" class="form-input" value="400" placeholder="e.g. 400" oninput="calcIPO()"></div>
+                    <div class="form-group"><label class="form-label">Secondary Shares Sold ($M)</label><input type="number" id="ipo_sec" class="form-input" value="100" placeholder="e.g. 100" oninput="calcIPO()"></div>
+                    <div class="form-group"><label class="form-label">Greenshoe Option (%)</label><input type="number" id="ipo_shoe" class="form-input" value="15" step="1" placeholder="e.g. 15" oninput="calcIPO()"></div>
+                </div>
+                
+                <div class="card-title" style="margin-top: 24px;">Pricing & Fees</div>
+                <div class="input-grid">
+                    <div class="form-group"><label class="form-label">Target Share Price ($)</label><input type="number" id="ipo_price" class="form-input" value="20.00" step="0.5" placeholder="e.g. 20.00" oninput="calcIPO()"></div>
+                    <div class="form-group"><label class="form-label">IPO Discount (%)</label><input type="number" id="ipo_disc" class="form-input" value="15" step="1" placeholder="e.g. 15" oninput="calcIPO()"></div>
+                    <div class="form-group"><label class="form-label">Gross Spread / Fees (%)</label><input type="number" id="ipo_fees" class="form-input" value="7.0" step="0.1" placeholder="e.g. 7.0" oninput="calcIPO()"></div>
+                </div>
+            </div>
+            <div class="output-panel">
+                <div class="input-row-3">
+                    <div class="metric-card">
+                        <div class="metric-label">Post-Money Valuation</div>
+                        <div class="metric-value hero" id="ipo_post_val">$0.00</div>
+                        <div class="metric-sub">Market Cap at Listing</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Total Proceeds</div>
+                        <div class="metric-value" id="ipo_proceeds">$0.00</div>
+                        <div class="metric-sub">Gross Proceeds (Pre-Shoe)</div>
+                    </div>
+                     <div class="metric-card">
+                        <div class="metric-label">Float %</div>
+                        <div class="metric-value" id="ipo_float">0.0%</div>
+                        <div class="metric-sub">Shares Tradable</div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-title">Offering Summary</div>
+                    <table class="fin-table" id="ipo_table">
+                        <!-- JS Injected -->
+                    </table>
+                </div>
+                <div class="card">
+                     <div class="card-title">Ownership Dilution</div>
+                     <div class="chart-container"><canvas id="ipoChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- BOND PAGE -->
+    <div id="page-bond" class="page-section hidden">
+        <div class="page-header">
+            <div class="page-header-inner">
+                <div class="page-breadcrumb">FinModel Pro / Fixed Income</div>
+                <h1 class="page-heading">Bond Valuation</h1>
+                <p class="page-subheading">Calculate bond price, duration, and convexity based on yield targets.</p>
+                <div class="page-tags"><span class="tag">Fixed Income</span><span class="tag">Valuation</span></div>
+            </div>
+             <div class="page-header-actions">
+                <button class="nav-link" onclick="resetInputs('bond')">Reset</button>
+            </div>
+        </div>
+        <div class="model-layout">
+            <div class="input-panel">
+                <div class="card-title">Bond Characteristics</div>
+                <div class="input-grid">
+                    <div class="form-group"><label class="form-label">Face Value ($)</label><input type="number" id="bond_face" class="form-input" value="1000" placeholder="e.g. 1000" oninput="calcBond()"></div>
+                    <div class="form-group"><label class="form-label">Coupon Rate (%)</label><input type="number" id="bond_coupon" class="form-input" value="5.0" step="0.1" placeholder="e.g. 5.0" oninput="calcBond()"></div>
+                    <div class="form-group"><label class="form-label">Frequency</label><select id="bond_freq" class="form-input" oninput="calcBond()"><option value="1">Annual</option><option value="2" selected>Semi-Annual</option><option value="4">Quarterly</option></select></div>
+                    <div class="form-group"><label class="form-label">Years to Maturity</label><input type="number" id="bond_years" class="form-input" value="10" step="1" placeholder="e.g. 10" oninput="calcBond()"></div>
+                    <div class="form-group"><label class="form-label">Yield to Maturity (%)</label><input type="number" id="bond_ytm" class="form-input" value="4.5" step="0.1" placeholder="e.g. 4.5" oninput="calcBond()"></div>
+                </div>
+            </div>
+            <div class="output-panel">
+                <div class="input-row-3">
+                    <div class="metric-card">
+                        <div class="metric-label">Bond Price</div>
+                        <div class="metric-value hero" id="bond_price">$0.00</div>
+                        <div class="metric-sub" id="bond_par_status">At Premium</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Modified Duration</div>
+                        <div class="metric-value" id="bond_dur">0.00</div>
+                        <div class="metric-sub">% Chg for 1% Yield Chg</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Convexity</div>
+                        <div class="metric-value" id="bond_conv">0.00</div>
+                        <div class="metric-sub">Curvature</div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-title">Price-Yield Curve</div>
+                    <div class="chart-container"><canvas id="bondChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- SENSITIVITY PAGE -->
+    <div id="page-sens" class="page-section hidden">
+        <div class="page-header">
+            <div class="page-header-inner">
+                <div class="page-breadcrumb">FinModel Pro / Analysis</div>
+                <h1 class="page-heading">Sensitivity Analysis</h1>
+                <p class="page-subheading">Analyze how changes in WACC and Terminal Growth Rate impact valuation.</p>
+                <div class="page-tags"><span class="tag">Valuation</span><span class="tag">Risk</span></div>
+            </div>
+             <div class="page-header-actions">
+                <button class="nav-link" onclick="resetInputs('sens')">Reset</button>
+            </div>
+        </div>
+        <div class="model-layout">
+            <div class="input-panel">
+                <div class="card-title">Base Assumptions</div>
+                <div class="input-grid">
+                    <div class="form-group"><label class="form-label">Free Cash Flow (Year 5) ($M)</label><input type="number" id="sens_fcf" class="form-input" value="100" placeholder="e.g. 100" oninput="calcSens()"></div>
+                    <div class="form-group"><label class="form-label">Base WACC (%)</label><input type="number" id="sens_wacc" class="form-input" value="10.0" step="0.5" placeholder="e.g. 10.0" oninput="calcSens()"></div>
+                    <div class="form-group"><label class="form-label">Base Terminal Growth (%)</label><input type="number" id="sens_g" class="form-input" value="2.0" step="0.1" placeholder="e.g. 2.0" oninput="calcSens()"></div>
+                    <div class="form-group"><label class="form-label">Step Size (%)</label><input type="number" id="sens_step" class="form-input" value="0.5" step="0.1" placeholder="e.g. 0.5" oninput="calcSens()"></div>
+                </div>
+            </div>
+            <div class="output-panel">
+                <div class="card">
+                    <div class="card-title">Implied Terminal Value ($M)</div>
+                    <div style="overflow-x:auto;">
+                        <table class="fin-table" id="sens_table" style="text-align:center;">
+                            <!-- JS Injected -->
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- FORECAST PAGE -->
+    <div id="page-forecast" class="page-section hidden">
+        <div class="page-header">
+            <div class="page-header-inner">
+                <div class="page-breadcrumb">FinModel Pro / FP&A</div>
+                <h1 class="page-heading">Financial Forecast</h1>
+                <p class="page-subheading">Project future revenues using CAGR and growth assumptions.</p>
+                <div class="page-tags"><span class="tag">FP&A</span><span class="tag">Budgeting</span></div>
+            </div>
+             <div class="page-header-actions">
+                <button class="nav-link" onclick="resetInputs('forecast')">Reset</button>
+            </div>
+        </div>
+        <div class="model-layout">
+            <div class="input-panel">
+                <div class="card-title">Historical Data</div>
+                <div class="input-grid">
+                    <div class="form-group"><label class="form-label">Year 1 Revenue ($)</label><input type="number" id="fc_rev_1" class="form-input" value="100" placeholder="e.g. 100" oninput="calcForecast()"></div>
+                    <div class="form-group"><label class="form-label">Year 2 Revenue ($)</label><input type="number" id="fc_rev_2" class="form-input" value="110" placeholder="e.g. 110" oninput="calcForecast()"></div>
+                    <div class="form-group"><label class="form-label">Year 3 Revenue ($)</label><input type="number" id="fc_rev_3" class="form-input" value="125" placeholder="e.g. 125" oninput="calcForecast()"></div>
+                </div>
+                
+                <div class="card-title" style="margin-top: 24px;">Forecast Assumptions</div>
+                <div class="input-grid">
+                    <div class="form-group"><label class="form-label">Growth Method</label><select id="fc_method" class="form-input" oninput="calcForecast()"><option value="cagr">Historical CAGR</option><option value="fixed">Fixed % Growth</option><option value="linear">Linear Trend</option></select></div>
+                    <div class="form-group"><label class="form-label">Fixed Growth % (if selected)</label><input type="number" id="fc_rate" class="form-input" value="5.0" step="0.1" placeholder="e.g. 5.0" oninput="calcForecast()"></div>
+                    <div class="form-group"><label class="form-label">Forecast Years</label><input type="number" id="fc_years" class="form-input" value="5" max="10" placeholder="e.g. 5" oninput="calcForecast()"></div>
+                </div>
+            </div>
+            <div class="output-panel">
+                <div class="card">
+                    <div class="card-title">Revenue Projection</div>
+                    <div class="chart-container"><canvas id="fcChart"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Forecast Data</div>
+                    <table class="fin-table" id="fc_table"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- GLOSSARY PAGE -->
+    <div id="page-glossary" class="page-section hidden">
+        <div class="page-header">
+            <div class="page-header-inner">
+                <div class="page-breadcrumb">FinModel Pro / Resources</div>
+                <h1 class="page-heading">Financial Glossary</h1>
+                <p class="page-subheading">Key terms and definitions used in financial modeling.</p>
+            </div>
+        </div>
+        <div class="card">
+            <input type="text" id="glossary_search" class="form-input" placeholder="Search terms..." oninput="filterGlossary()" style="margin-bottom: 24px;">
+            <div id="glossary_list"></div>
+        </div>
+    </div>
+    <!-- 3-STATEMENT PAGE -->
+    <div id="page-3stmt" class="page-section hidden">
+        <div class="page-header">
+            <div class="page-header-inner">
+                <div class="page-breadcrumb">FinModel Pro / Core</div>
+                <h1 class="page-heading">3-Statement Model</h1>
+                <p class="page-subheading">Integrated Income Statement, Balance Sheet, and Cash Flow Statement.</p>
+                <div class="page-tags"><span class="tag">Accounting</span><span class="tag">Modeling</span></div>
+            </div>
+             <div class="page-header-actions">
+                <button class="nav-link" onclick="resetInputs('3stmt')">Reset</button>
+            </div>
+        </div>
+        <div class="model-layout">
+            <div class="input-panel">
+                <div class="card-title">Assumptions</div>
+                <div class="input-grid">
+                    <div class="form-group"><label class="form-label">Revenue Growth (%)</label><input type="number" id="stmt_g" class="form-input" value="5.0" step="0.1" placeholder="e.g. 5.0" oninput="calc3Stmt()"></div>
+                    <div class="form-group"><label class="form-label">COGS (% Rev)</label><input type="number" id="stmt_cogs" class="form-input" value="40.0" step="0.1" placeholder="e.g. 40.0" oninput="calc3Stmt()"></div>
+                    <div class="form-group"><label class="form-label">OpEx (% Rev)</label><input type="number" id="stmt_opex" class="form-input" value="30.0" step="0.1" placeholder="e.g. 30.0" oninput="calc3Stmt()"></div>
+                    <div class="form-group"><label class="form-label">D&A (% Rev)</label><input type="number" id="stmt_da" class="form-input" value="5.0" step="0.1" placeholder="e.g. 5.0" oninput="calc3Stmt()"></div>
+                    <div class="form-group"><label class="form-label">Interest Rate (%)</label><input type="number" id="stmt_int_rate" class="form-input" value="5.0" step="0.1" placeholder="e.g. 5.0" oninput="calc3Stmt()"></div>
+                    <div class="form-group"><label class="form-label">Tax Rate (%)</label><input type="number" id="stmt_tax" class="form-input" value="21.0" step="0.1" placeholder="e.g. 21.0" oninput="calc3Stmt()"></div>
+                    <div class="form-group"><label class="form-label">CapEx (% Rev)</label><input type="number" id="stmt_capex" class="form-input" value="4.0" step="0.1" placeholder="e.g. 4.0" oninput="calc3Stmt()"></div>
+                    <div class="form-group"><label class="form-label">NWC (% Rev)</label><input type="number" id="stmt_nwc" class="form-input" value="10.0" step="0.1" placeholder="e.g. 10.0" oninput="calc3Stmt()"></div>
+                </div>
+            </div>
+            <div class="output-panel">
+                <div class="card">
+                    <div class="card-title">Financial Statements</div>
+                    <div class="tabs">
+                        <button class="tab-btn active" onclick="showStmtTab('is')">Income Statement</button>
+                        <button class="tab-btn" onclick="showStmtTab('bs')">Balance Sheet</button>
+                        <button class="tab-btn" onclick="showStmtTab('cf')">Cash Flow</button>
+                    </div>
+                    <div id="stmt_is" class="stmt-tab">
+                        <table class="fin-table" id="table_is"></table>
+                    </div>
+                    <div id="stmt_bs" class="stmt-tab hidden">
+                        <table class="fin-table" id="table_bs"></table>
+                    </div>
+                    <div id="stmt_cf" class="stmt-tab hidden">
+                        <table class="fin-table" id="table_cf"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- COMPARATOR PAGE REMOVED -->
+
+</div>
+
+<script>
+    // --- GLOBAL UTILS ---
+    function n(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
+    function pct(id) { return (parseFloat(document.getElementById(id)?.value) || 0) / 100; }
+    function setText(id, val) { const el = document.getElementById(id); if(el) el.textContent = val; }
+    function fmt(val) { 
+        if (!isFinite(val) || isNaN(val)) return '—'; 
+        return val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); 
+    }
+    function fmtPct(val) { 
+        if (!isFinite(val) || isNaN(val)) return '—'; 
+        return (val * 100).toFixed(2) + '%'; 
+    }
+    function showPage(pageId) {
+        document.querySelectorAll('.page-section').forEach(el => el.classList.add('hidden'));
+        document.getElementById('page-' + pageId).classList.remove('hidden');
+        document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+        window.scrollTo(0, 0);
+        
+        // Track Progress
+        if(pageId !== 'home') {
+            const visited = JSON.parse(localStorage.getItem('visitedPages') || '[]');
+            if(!visited.includes(pageId)) { 
+                visited.push(pageId); 
+                localStorage.setItem('visitedPages', JSON.stringify(visited)); 
+                updateProgress();
+            }
+        }
+
+        if(pageId === 'dcf') calcDCF();
+        if(pageId === 'lbo') calcLBO();
+        if(pageId === 'comps') calcComps();
+        if(pageId === 'wacc') calcWACC();
+        if(pageId === 'ma') calcMA();
+        if(pageId === 'ratios') calcRatios();
+        if(pageId === 'ipo') calcIPO();
+        if(pageId === 'bond') calcBond();
+        if(pageId === 'sens') calcSens();
+        if(pageId === 'forecast') calcForecast();
+        if(pageId === 'glossary') filterGlossary();
+        if(pageId === '3stmt') calc3Stmt();
+    }
+
+    function updateGlobalAssumptions() {
+        const tax = document.getElementById('global_tax').value;
+        const taxIds = ['dcf_tax', 'lbo_tax', 'wacc_tax', 'ma_tax', 'stmt_tax'];
+        taxIds.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.value = tax;
+        });
+        // Recalculate all
+        calcDCF(); calcLBO(); calcComps(); calcWACC(); calcMA(); calcRatios(); calcIPO(); calcBond(); calcSens(); calcForecast(); calc3Stmt();
+        saveData();
+    }
+
+    function updateProgress() {
+        const visited = JSON.parse(localStorage.getItem('visitedPages') || '[]');
+        const count = visited.length;
+        const total = 13;
+        const elVal = document.getElementById('progress_val');
+        const elBar = document.getElementById('progress_bar');
+        if(elVal) elVal.textContent = `${count}/${total}`;
+        if(elBar) elBar.style.width = `${Math.min((count/total)*100, 100)}%`;
+    }
+    function toggleTheme() { document.body.classList.toggle('dark-mode'); localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); }
+    function saveData() {
+        const inputs = document.querySelectorAll('input, select');
+        const data = {};
+        inputs.forEach(el => { if(el.id) data[el.id] = el.value; });
+        localStorage.setItem('finData', JSON.stringify(data));
+        alert('Saved!');
+    }
+    function loadData() {
+        const data = JSON.parse(localStorage.getItem('finData'));
+        if(!data) return;
+        Object.keys(data).forEach(k => {
+            const el = document.getElementById(k);
+            if(el) el.value = data[k];
+        });
+        if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+    }
+    function copyText(id) {
+        const text = document.getElementById(id).textContent;
+        navigator.clipboard.writeText(text);
+        alert('Copied: ' + text);
+    }
+    
+    // --- CHART INSTANCES ---
+    let charts = {};
+    function updateChart(id, type, labels, data, label) {
+        const ctx = document.getElementById(id).getContext('2d');
+        if(charts[id]) charts[id].destroy();
+        charts[id] = new Chart(ctx, {
+            type: type,
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: label,
+                    data: data,
+                    backgroundColor: '#C9A84C',
+                    borderColor: '#C9A84C',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    // --- DCF LOGIC ---
+    function calcDCF() {
+        const wacc = pct('dcf_wacc');
+        const tgr = pct('dcf_tgr');
+        const shares = n('dcf_shares');
+        const netDebt = n('dcf_net_debt');
+        const taxRate = pct('dcf_tax');
+        const margin = pct('dcf_margin');
+        const daPct = pct('dcf_da_pct');
+        const capexPct = pct('dcf_capex_pct');
+        const nwcPct = pct('dcf_nwc_pct');
+
+        const alertEl = document.getElementById('dcf_alert');
+        if (wacc <= tgr) { alertEl.style.display = 'flex'; } else { alertEl.style.display = 'none'; }
+
+        let revs = [n('dcf_rev_1'), n('dcf_rev_2'), n('dcf_rev_3'), n('dcf_rev_4'), n('dcf_rev_5')];
+        let fcffs = [];
+        let pvs = [];
+        let html = '';
+        let sumPV = 0;
+
+        revs.forEach((rev, i) => {
+            const ebit = rev * margin;
+            const nopat = ebit * (1 - taxRate);
+            const da = rev * daPct;
+            const capex = rev * capexPct;
+            const dnwc = rev * nwcPct;
+            const fcff = nopat + da - capex - dnwc;
+            const df = 1 / Math.pow(1 + wacc, i + 1);
+            const pv = fcff * df;
+            
+            fcffs.push(fcff);
+            pvs.push(pv);
+            sumPV += pv;
+        });
+        
+        const rows = ['Revenue', 'EBIT', 'NOPAT', 'Add: D&A', 'Less: CapEx', 'Less: ΔNWC', 'FCFF', 'PV Factor', 'PV of FCFF'];
+        rows.forEach(row => {
+            html += `<tr><td>${row}</td>`;
+            revs.forEach((rev, i) => {
+                let val = 0;
+                const ebit = rev * margin;
+                if(row === 'Revenue') val = rev;
+                if(row === 'EBIT') val = ebit;
+                if(row === 'NOPAT') val = ebit * (1 - taxRate);
+                if(row === 'Add: D&A') val = rev * daPct;
+                if(row === 'Less: CapEx') val = rev * capexPct;
+                if(row === 'Less: ΔNWC') val = rev * nwcPct;
+                if(row === 'FCFF') val = fcffs[i];
+                if(row === 'PV Factor') val = 1 / Math.pow(1 + wacc, i + 1);
+                if(row === 'PV of FCFF') val = pvs[i];
+                html += `<td>${row === 'PV Factor' ? val.toFixed(3) : fmt(val)}</td>`;
+            });
+            html += `</tr>`;
+        });
+        document.getElementById('dcf_table_body').innerHTML = html;
+
+        const terminalVal = (fcffs[4] * (1 + tgr)) / (wacc - tgr);
+        const pvTV = terminalVal / Math.pow(1 + wacc, 5);
+        const ev = sumPV + pvTV;
+        const equity = ev - netDebt;
+        const price = equity / shares;
+
+        setText('dcf_ev', fmt(ev));
+        setText('dcf_equity', fmt(equity));
+        setText('dcf_price', '$' + fmt(price));
+
+        const calcScenario = (w, g) => {
+             const tv = (fcffs[4] * (1 + g/100)) / (w/100 - g/100);
+             const ptv = tv / Math.pow(1 + w/100, 5);
+             let sPV = 0;
+             fcffs.forEach((f, i) => sPV += f / Math.pow(1 + w/100, i+1));
+             return ((sPV + ptv - netDebt) / shares);
+        };
+
+        const bearPrice = calcScenario(n('dcf_bear_wacc'), n('dcf_bear_g'));
+        const basePrice = calcScenario(n('dcf_base_wacc'), n('dcf_base_g'));
+        const bullPrice = calcScenario(n('dcf_bull_wacc'), n('dcf_bull_g'));
+
+        setText('dcf_bear_res', '$' + fmt(bearPrice));
+        setText('dcf_base_res', '$' + fmt(basePrice));
+        setText('dcf_bull_res', '$' + fmt(bullPrice));
+        
+        updateChart('dcfChart', 'bar', ['Y1','Y2','Y3','Y4','Y5', 'TV'], [...pvs, pvTV], 'Present Value of Cash Flows');
+    }
+
+    // --- LBO LOGIC ---
+    function calcLBO() {
+        const entryEbitda = n('lbo_entry_ebitda');
+        const entryMult = n('lbo_entry_mult');
+        const feesPct = pct('lbo_fees');
+        
+        const levSen = n('lbo_lev_sen');
+        const levUnsec = n('lbo_lev_unsec');
+        const levSub = n('lbo_lev_sub');
+        
+        const rateSen = pct('lbo_rate_sen');
+        const rateUnsec = pct('lbo_rate_unsec');
+        const rateSub = pct('lbo_rate_sub');
+        
+        const purchasePrice = entryEbitda * entryMult;
+        const fees = purchasePrice * feesPct;
+        const totalUses = purchasePrice + fees;
+        
+        const debtSen = entryEbitda * levSen;
+        const debtUnsec = entryEbitda * levUnsec;
+        const debtSub = entryEbitda * levSub;
+        const totalDebt = debtSen + debtUnsec + debtSub;
+        const equity = totalUses - totalDebt;
+        
+        document.getElementById('lbo_su_table').innerHTML = `
+            <thead><tr><th>Sources</th><th>Amount</th><th>%</th></tr></thead>
+            <tbody>
+                <tr><td>Senior Debt</td><td>${fmt(debtSen)}</td><td>${fmtPct(debtSen/totalUses)}</td></tr>
+                <tr><td>Unsecured Debt</td><td>${fmt(debtUnsec)}</td><td>${fmtPct(debtUnsec/totalUses)}</td></tr>
+                <tr><td>Subordinated Debt</td><td>${fmt(debtSub)}</td><td>${fmtPct(debtSub/totalUses)}</td></tr>
+                <tr><td>Sponsor Equity</td><td>${fmt(equity)}</td><td>${fmtPct(equity/totalUses)}</td></tr>
+                <tr class="total"><td>Total Sources</td><td>${fmt(totalUses)}</td><td>100%</td></tr>
+            </tbody>
+            <thead><tr><th>Uses</th><th>Amount</th><th>%</th></tr></thead>
+            <tbody>
+                <tr><td>Purchase Price</td><td>${fmt(purchasePrice)}</td><td>${fmtPct(purchasePrice/totalUses)}</td></tr>
+                <tr><td>Fees</td><td>${fmt(fees)}</td><td>${fmtPct(fees/totalUses)}</td></tr>
+                <tr class="total"><td>Total Uses</td><td>${fmt(totalUses)}</td><td>100%</td></tr>
+            </tbody>
+        `;
+
+        let debtBal = totalDebt;
+        let debtSchedule = [];
+        const exitYear = parseInt(document.getElementById('lbo_exit_year').value);
+        const growth = [pct('lbo_g_1'), pct('lbo_g_2'), pct('lbo_g_3'), pct('lbo_g_4'), pct('lbo_g_5')];
+        const margins = [pct('lbo_m_1'), pct('lbo_m_2'), pct('lbo_m_3'), pct('lbo_m_4'), pct('lbo_m_5')];
+        const taxRate = pct('lbo_tax');
+        const capexPct = pct('lbo_capex');
+
+        let rev = entryEbitda / 0.20; 
+
+        for(let i=0; i<5; i++) {
+            rev = rev * (1 + growth[i]);
+            const ebitda = rev * margins[i];
+            const interest = debtBal * ((debtSen*rateSen + debtUnsec*rateUnsec + debtSub*rateSub)/totalDebt);
+            const tax = (ebitda - interest) * taxRate;
+            const capex = rev * capexPct;
+            const fcf = ebitda - interest - tax - capex;
+            const paydown = Math.max(0, fcf);
+            debtBal = Math.max(0, debtBal - paydown);
+            debtSchedule.push(debtBal);
+        }
+
+        let tempRev = entryEbitda / 0.2;
+        let tempEbitda = entryEbitda;
+        for(let i=0; i<exitYear; i++) {
+            tempRev *= (1 + growth[i]);
+            tempEbitda = tempRev * margins[i];
+        }
+        
+        const exitEV = tempEbitda * n('lbo_exit_mult');
+        const exitDebt = debtSchedule[exitYear-1];
+        const exitEquity = exitEV - exitDebt;
+        const moic = exitEquity / equity;
+        const irr = (Math.pow(moic, 1/exitYear) - 1);
+
+        setText('lbo_moic', moic.toFixed(2) + 'x');
+        setText('lbo_irr', fmtPct(irr));
+        
+        updateChart('lboChart', 'line', ['Y1','Y2','Y3','Y4','Y5'], debtSchedule, 'Total Debt Balance');
+    }
+
+    // --- COMPS LOGIC ---
+    function calcComps() {
+        // Mock data init if empty
+        if(document.getElementById('comps_inputs').innerHTML === '') {
+            let html = '<table class="fin-table"><thead><tr><th>Peer Name</th><th>Price ($)</th><th>EPS ($)</th><th>EBITDA ($M)</th></tr></thead><tbody>';
+            for(let i=1; i<=5; i++) {
+                html += `<tr>
+                    <td><input type="text" class="form-input" value="Peer ${i}" placeholder="Name" style="min-width: 80px;"></td>
+                    <td><input type="number" id="comp_p_${i}" class="form-input" value="${10*i}" placeholder="Price" oninput="calcComps()"></td>
+                    <td><input type="number" id="comp_eps_${i}" class="form-input" value="${1*i}" placeholder="EPS" oninput="calcComps()"></td>
+                    <td><input type="number" id="comp_ebitda_${i}" class="form-input" value="${5*i}" placeholder="EBITDA" oninput="calcComps()"></td>
+                </tr>`;
+            }
+            html += '</tbody></table>';
+            document.getElementById('comps_inputs').innerHTML = html;
+        }
+
+        let pes = [];
+        let html = `<thead><tr><th>Peer</th><th>Price</th><th>EPS</th><th>P/E</th></tr></thead><tbody>`;
+        for(let i=1; i<=5; i++) {
+            const p = n(`comp_p_${i}`);
+            const eps = n(`comp_eps_${i}`);
+            const pe = eps ? p/eps : 0;
+            pes.push(pe);
+            html += `<tr><td>Peer ${i}</td><td>${fmt(p)}</td><td>${fmt(eps)}</td><td>${pe.toFixed(1)}x</td></tr>`;
+        }
+        html += `</tbody>`;
+        document.getElementById('comps_table').innerHTML = html;
+
+        const sorted = pes.sort((a,b) => a-b);
+        const low = sorted[0];
+        const high = sorted[4];
+        const mean = pes.reduce((a,b)=>a+b,0)/5;
+
+        const subEps = 2.5; // Simplified for prompt
+        setText('comps_low', '$' + fmt(low * subEps));
+        setText('comps_mean', '$' + fmt(mean * subEps));
+        setText('comps_high', '$' + fmt(high * subEps));
+    }
+
+    // --- WACC LOGIC ---
+    function calcWACC() {
+        const rf = pct('wacc_rf');
+        const beta = n('wacc_beta');
+        const erp = pct('wacc_erp');
+        const kd = pct('wacc_kd');
+        const tax = pct('wacc_tax');
+        const e = n('wacc_e');
+        const d = n('wacc_d');
+        
+        const ke = rf + (beta * erp);
+        const kdt = kd * (1 - tax);
+        const v = e + d;
+        const we = e/v;
+        const wd = d/v;
+        
+        const wacc = (we * ke) + (wd * kdt);
+        setText('wacc_res', fmtPct(wacc));
+        
+        updateChart('waccChart', 'doughnut', ['Equity', 'Debt'], [we*100, wd*100], 'Capital Structure');
+    }
+
+    // --- M&A LOGIC ---
+    function calcMA() {
+        const aPrice = n('ma_a_price');
+        const aShares = n('ma_a_shares');
+        const aNI = n('ma_a_ni');
+        const aDebt = n('ma_a_debt');
+        
+        const tPrice = n('ma_t_price');
+        const tShares = n('ma_t_shares');
+        const tNI = n('ma_t_ni');
+        const tDebt = n('ma_t_debt');
+        
+        const offerPrice = n('ma_offer_price');
+        const cashPct = pct('ma_cash_pct');
+        const stockPct = 1 - cashPct;
+        const debtRate = pct('ma_debt_rate');
+        const synergies = n('ma_synergies');
+        const tax = pct('ma_tax');
+        const fees = n('ma_fees');
+
+        const tEquityVal = offerPrice * tShares;
+        const cashUsed = tEquityVal * cashPct;
+        const stockUsed = tEquityVal * stockPct;
+        const newShares = stockUsed / aPrice;
+        
+        const interestExp = cashUsed * debtRate;
+        const foregoneInt = 0; 
+        const taxShield = (interestExp + foregoneInt) * (1 - tax);
+        const synAfterTax = synergies * (1 - tax);
+        
+        const pfNI = aNI + tNI + synAfterTax - (interestExp * (1 - tax)); 
+        const pfShares = aShares + newShares;
+        const pfEPS = pfNI / pfShares;
+        const aEPS = aNI / aShares;
+        
+        const accVal = pfEPS - aEPS;
+        const accPct = (pfEPS / aEPS) - 1;
+        
+        setText('ma_acc_val', (accVal >= 0 ? '+' : '') + '$' + fmt(accVal));
+        setText('ma_acc_pct', (accPct >= 0 ? '+' : '') + fmtPct(accPct));
+        
+        const elVal = document.getElementById('ma_acc_val');
+        const elPct = document.getElementById('ma_acc_pct');
+        if(elVal) elVal.className = 'metric-value hero ' + (accVal >= 0 ? 'positive' : 'negative');
+        if(elPct) elPct.className = 'metric-value hero ' + (accPct >= 0 ? 'positive' : 'negative');
+
+        const rows = [
+            ['Net Income', aNI, tNI, synAfterTax - (interestExp * (1-tax)), pfNI],
+            ['Shares Outstanding', aShares, tShares, newShares, pfShares],
+            ['EPS', aEPS, tNI/tShares, '-', pfEPS]
+        ];
+        
+        let html = '';
+        rows.forEach(r => {
+            html += `<tr>
+                <td>${r[0]}</td>
+                <td>${fmt(r[1])}</td>
+                <td>${fmt(r[2])}</td>
+                <td>${r[3] === '-' ? '-' : fmt(r[3])}</td>
+                <td>${fmt(r[4])}</td>
+            </tr>`;
+        });
+        document.getElementById('ma_table_body').innerHTML = html;
+        
+        updateChart('maChart', 'doughnut', ['Acquirer Legacy', 'Target Issued'], [aShares, newShares], 'Pro Forma Ownership');
+    }
+
+    // --- RATIOS LOGIC ---
+    function calcRatios() {
+        const rev = n('rat_rev');
+        const cogs = n('rat_cogs');
+        const opex = n('rat_opex');
+        const int = n('rat_int');
+        const ni = n('rat_ni');
+        
+        const cash = n('rat_cash');
+        const ar = n('rat_ar');
+        const inv = n('rat_inv');
+        const ca = n('rat_ca');
+        const ta = n('rat_ta');
+        const cl = n('rat_cl');
+        const debt = n('rat_debt');
+        const eq = n('rat_eq');
+        
+        const price = n('rat_price');
+        const shares = n('rat_shares');
+        
+        const grossProfit = rev - cogs;
+        const ebit = grossProfit - opex;
+        
+        const ratios = [
+            { cat: 'Liquidity', name: 'Current Ratio', val: ca / cl, unit: 'x' },
+            { cat: 'Liquidity', name: 'Quick Ratio', val: (ca - inv) / cl, unit: 'x' },
+            { cat: 'Profitability', name: 'Gross Margin', val: grossProfit / rev, unit: '%' },
+            { cat: 'Profitability', name: 'Operating Margin', val: ebit / rev, unit: '%' },
+            { cat: 'Profitability', name: 'Net Margin', val: ni / rev, unit: '%' },
+            { cat: 'Profitability', name: 'ROE', val: ni / eq, unit: '%' },
+            { cat: 'Solvency', name: 'Debt / Equity', val: debt / eq, unit: 'x' },
+            { cat: 'Solvency', name: 'Interest Coverage', val: ebit / int, unit: 'x' },
+            { cat: 'Valuation', name: 'P/E Ratio', val: price / (ni / shares), unit: 'x' },
+            { cat: 'Valuation', name: 'EPS', val: ni / shares, unit: '$' }
+        ];
+        
+        let html = '';
+        let lastCat = '';
+        ratios.forEach(r => {
+            if(r.cat !== lastCat) {
+                html += `<tr class="subtotal"><td colspan="2">${r.cat}</td></tr>`;
+                lastCat = r.cat;
+            }
+            let displayVal = r.unit === '%' ? fmtPct(r.val) : fmt(r.val) + r.unit;
+            if(r.unit === '$') displayVal = '$' + fmt(r.val);
+            html += `<tr><td>${r.name}</td><td>${displayVal}</td></tr>`;
+        });
+        document.getElementById('ratios_table').innerHTML = html;
+        
+        updateChart('ratProfChart', 'bar', ['Gross', 'Operating', 'Net'], [grossProfit/rev, ebit/rev, ni/rev], 'Margins');
+        updateChart('ratLiqChart', 'bar', ['Current', 'Quick'], [ca/cl, (ca-inv)/cl], 'Liquidity Ratios');
+    }
+
+    // --- IPO LOGIC ---
+    function calcIPO() {
+        const preVal = n('ipo_pre_val');
+        const raise = n('ipo_raise');
+        const sec = n('ipo_sec');
+        const shoePct = pct('ipo_shoe');
+        const price = n('ipo_price');
+        const feesPct = pct('ipo_fees');
+        
+        const preShares = preVal / price; 
+        const newShares = raise / price;
+        const secShares = sec / price;
+        
+        const postSharesBase = preShares + newShares;
+        const shoeShares = newShares * shoePct;
+        const fullyDilutedShares = postSharesBase + shoeShares; 
+        
+        const postVal = fullyDilutedShares * price;
+        const totalDealSize = raise + sec;
+        const grossProceeds = totalDealSize * (1 + shoePct); 
+        
+        const floatShares = newShares + secShares + shoeShares;
+        const floatPct = floatShares / fullyDilutedShares;
+        
+        setText('ipo_post_val', '$' + fmt(postVal));
+        setText('ipo_proceeds', '$' + fmt(totalDealSize));
+        setText('ipo_float', fmtPct(floatPct));
+        
+        const tableData = [
+            ['Pre-Money Valuation', preVal],
+            ['Primary Raise', raise],
+            ['Secondary Sale', sec],
+            ['Post-Money Valuation', postVal],
+            ['Implied Shares (M)', fullyDilutedShares]
+        ];
+        
+        let html = '';
+        tableData.forEach(r => {
+             html += `<tr><td>${r[0]}</td><td>${fmt(r[1])}</td></tr>`;
+        });
+        document.getElementById('ipo_table').innerHTML = html;
+        
+        updateChart('ipoChart', 'doughnut', ['Pre-IPO Owners', 'New Investors'], [preShares - secShares, newShares + secShares + shoeShares], 'Ownership');
+    }
+
+    // --- BOND LOGIC ---
+    function calcBond() {
+        const face = n('bond_face');
+        const couponRate = pct('bond_coupon');
+        const freq = parseInt(document.getElementById('bond_freq').value);
+        const years = n('bond_years');
+        const ytm = pct('bond_ytm');
+        
+        const periods = years * freq;
+        const coupon = (face * couponRate) / freq;
+        const r = ytm / freq;
+        
+        let price = 0;
+        let macDurSum = 0;
+        let convSum = 0;
+        
+        for(let t=1; t<=periods; t++) {
+            const pv = coupon / Math.pow(1+r, t);
+            price += pv;
+            macDurSum += t * pv;
+            convSum += t * (t+1) * pv;
+        }
+        price += face / Math.pow(1+r, periods);
+        macDurSum += periods * (face / Math.pow(1+r, periods));
+        convSum += periods * (periods+1) * (face / Math.pow(1+r, periods));
+        
+        const macDur = (macDurSum / price) / freq;
+        const modDur = macDur / (1 + r);
+        const convexity = (convSum / (price * Math.pow(1+r, 2))) / Math.pow(freq, 2);
+        
+        setText('bond_price', '$' + fmt(price));
+        setText('bond_dur', fmt(modDur));
+        setText('bond_conv', fmt(convexity));
+        setText('bond_par_status', price > face ? 'Trading at Premium' : (price < face ? 'Trading at Discount' : 'Trading at Par'));
+        
+        // Chart: Price vs Yield
+        const yields = [];
+        const prices = [];
+        for(let y=0; y<=10; y+=0.5) {
+            yields.push(y + '%');
+            let p = 0;
+            const ry = (y/100)/freq;
+            for(let t=1; t<=periods; t++) p += coupon / Math.pow(1+ry, t);
+            p += face / Math.pow(1+ry, periods);
+            prices.push(p);
+        }
+        updateChart('bondChart', 'line', yields, prices, 'Price Sensitivity');
+    }
+
+    // --- SENSITIVITY LOGIC ---
+    function calcSens() {
+        const fcf = n('sens_fcf');
+        const wacc = n('sens_wacc');
+        const g = n('sens_g');
+        const step = n('sens_step');
+        
+        const waccs = [wacc - 2*step, wacc - step, wacc, wacc + step, wacc + 2*step];
+        const gs = [g - 2*step, g - step, g, g + step, g + 2*step];
+        
+        let html = '<thead><tr><th>g \\ WACC</th>';
+        waccs.forEach(w => html += `<th>${w.toFixed(1)}%</th>`);
+        html += '</tr></thead><tbody>';
+        
+        gs.forEach(currG => {
+            html += `<tr><td style="font-weight:bold;">${currG.toFixed(1)}%</td>`;
+            waccs.forEach(currW => {
+                if (currW <= currG) {
+                    html += `<td class="negative">N/A</td>`;
+                } else {
+                    const tv = (fcf * (1 + currG/100)) / ((currW/100) - (currG/100));
+                    html += `<td>${fmt(tv)}</td>`;
+                }
+            });
+            html += '</tr>';
+        });
+        html += '</tbody>';
+        document.getElementById('sens_table').innerHTML = html;
+    }
+
+    // --- FORECAST LOGIC ---
+    function calcForecast() {
+        const h1 = n('fc_rev_1');
+        const h2 = n('fc_rev_2');
+        const h3 = n('fc_rev_3');
+        const method = document.getElementById('fc_method').value;
+        const rate = pct('fc_rate');
+        const years = n('fc_years');
+        
+        const hist = [h1, h2, h3];
+        let forecast = [];
+        let labels = ['Y1', 'Y2', 'Y3'];
+        
+        let growthRate = 0;
+        if(method === 'cagr') {
+            growthRate = Math.pow(h3/h1, 1/2) - 1;
+        } else if(method === 'fixed') {
+            growthRate = rate;
+        } else {
+            // Simple linear regression slope
+            growthRate = (h3 - h2) / h2; // Use last year growth as proxy for linear trend continuation
+        }
+        
+        let lastVal = h3;
+        for(let i=1; i<=years; i++) {
+            let val = 0;
+            if(method === 'linear') {
+                const slope = (h3 - h1) / 2;
+                val = h3 + (slope * i);
+            } else {
+                val = lastVal * (1 + growthRate);
+            }
+            forecast.push(val);
+            labels.push('F' + i);
+            lastVal = val;
+        }
+        
+        let html = '<thead><tr><th>Year</th><th>Revenue</th><th>Growth %</th></tr></thead><tbody>';
+        [...hist, ...forecast].forEach((v, i) => {
+            const prev = i > 0 ? [...hist, ...forecast][i-1] : 0;
+            const g = i > 0 ? (v/prev)-1 : 0;
+            html += `<tr><td>${labels[i]}</td><td>${fmt(v)}</td><td>${i>0 ? fmtPct(g) : '-'}</td></tr>`;
+        });
+        html += '</tbody>';
+        document.getElementById('fc_table').innerHTML = html;
+        
+        updateChart('fcChart', 'line', labels, [...hist, ...forecast], 'Revenue Forecast');
+    }
+
+    // --- GLOSSARY LOGIC ---
+    const glossaryTerms = [
+        { t: 'EBITDA', c: 'Profitability', d: 'Earnings Before Interest, Taxes, Depreciation, and Amortization. A proxy for operating cash flow.' },
+        { t: 'WACC', c: 'Valuation', d: 'Weighted Average Cost of Capital. The rate that a company is expected to pay on average to all its security holders.' },
+        { t: 'DCF', c: 'Valuation', d: 'Discounted Cash Flow. A valuation method used to estimate the value of an investment based on its expected future cash flows.' },
+        { t: 'LBO', c: 'M&A', d: 'Leveraged Buyout. The acquisition of another company using a significant amount of borrowed money to meet the cost of acquisition.' },
+        { t: 'CAGR', c: 'Growth', d: 'Compound Annual Growth Rate. The mean annual growth rate of an investment over a specified period of time longer than one year.' },
+        { t: 'Beta', c: 'Risk', d: 'A measure of the volatility, or systematic risk, of an individual stock in comparison to the unsystematic risk of the entire market.' },
+        { t: 'Enterprise Value', c: 'Valuation', d: 'A measure of a company\'s total value, often used as a more comprehensive alternative to equity market capitalization.' },
+        { t: 'Free Cash Flow', c: 'Cash Flow', d: 'The cash a company generates after taking into consideration cash outflows that support its operations and maintain its capital assets.' },
+        { t: 'Working Capital', c: 'Liquidity', d: 'The difference between a company\'s current assets and current liabilities.' },
+        { t: 'CapEx', c: 'Investing', d: 'Capital Expenditures. Funds used by a company to acquire, upgrade, and maintain physical assets.' },
+        { t: 'Synergies', c: 'M&A', d: 'The concept that the combined value and performance of two companies will be greater than the sum of the separate individual parts.' },
+        { t: 'Accretion/Dilution', c: 'M&A', d: 'Analysis to determine if an acquisition will increase (accrete) or decrease (dilute) the acquirer\'s Earnings Per Share (EPS).' }
+    ];
+
+    function filterGlossary() {
+        const q = document.getElementById('glossary_search').value.toLowerCase();
+        const filtered = glossaryTerms.filter(item => item.t.toLowerCase().includes(q) || item.d.toLowerCase().includes(q) || item.c.toLowerCase().includes(q));
+        let html = '';
+        filtered.forEach(item => {
+            html += `
+            <div class="glossary-card">
+                <span class="glossary-cat">${item.c}</span>
+                <div class="glossary-term">${item.t}</div>
+                <div class="glossary-def">${item.d}</div>
+            </div>`;
+        });
+        document.getElementById('glossary_list').innerHTML = html;
+        document.getElementById('glossary_list').className = 'glossary-grid';
+    }
+
+    // --- 3-STATEMENT LOGIC ---
+    function showStmtTab(tab) {
+        document.querySelectorAll('.stmt-tab').forEach(el => el.classList.add('hidden'));
+        document.getElementById('stmt_' + tab).classList.remove('hidden');
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+
+    function calc3Stmt() {
+        const g = pct('stmt_g');
+        const cogsPct = pct('stmt_cogs');
+        const opexPct = pct('stmt_opex');
+        const daPct = pct('stmt_da');
+        const intRate = pct('stmt_int_rate');
+        const taxRate = pct('stmt_tax');
+        const capexPct = pct('stmt_capex');
+        const nwcPct = pct('stmt_nwc');
+        
+        // Base Year (Y0)
+        let rev = 1000;
+        let nwc = rev * nwcPct;
+        let ppe = 800;
+        let debt = 400;
+        let equity = 500;
+        let cash = 100;
+        
+        let htmlIS = '<thead><tr><th>Metric</th><th>Y1</th><th>Y2</th><th>Y3</th></tr></thead><tbody>';
+        let htmlBS = '<thead><tr><th>Metric</th><th>Y1</th><th>Y2</th><th>Y3</th></tr></thead><tbody>';
+        let htmlCF = '<thead><tr><th>Metric</th><th>Y1</th><th>Y2</th><th>Y3</th></tr></thead><tbody>';
+        
+        const years = 3;
+        const d = { 
+            rev: [], cogs: [], gp: [], opex: [], ebitda: [], da: [], ebit: [], int: [], ebt: [], tax: [], ni: [],
+            cash: [], nwc: [], ppe: [], assets: [], debt: [], equity: [], liabEq: [],
+            ni_cf: [], da_cf: [], dnwc: [], capex: [], fcf: [], cash_end: []
+        };
+        
+        for(let i=1; i<=years; i++) {
+            // IS
+            rev = rev * (1 + g);
+            const cogs = rev * cogsPct;
+            const gp = rev - cogs;
+            const opex = rev * opexPct;
+            const ebitda = gp - opex;
+            const da = rev * daPct;
+            const ebit = ebitda - da;
+            const interest = debt * intRate;
+            const ebt = ebit - interest;
+            const tax = ebt * taxRate;
+            const ni = ebt - tax;
+            
+            // CF
+            const targetNWC = rev * nwcPct;
+            const changeNWC = targetNWC - nwc;
+            nwc = targetNWC; // Update for BS
+            
+            const capex = rev * capexPct;
+            const fcf = ni + da - changeNWC - capex;
+            
+            // BS
+            cash += fcf;
+            ppe = ppe - da + capex;
+            const assets = cash + nwc + ppe;
+            equity += ni;
+            const liabEq = debt + equity;
+            
+            // Store
+            d.rev.push(rev); d.cogs.push(cogs); d.gp.push(gp); d.opex.push(opex); d.ebitda.push(ebitda);
+            d.da.push(da); d.ebit.push(ebit); d.int.push(interest); d.ebt.push(ebt); d.tax.push(tax); d.ni.push(ni);
+            
+            d.cash.push(cash); d.nwc.push(nwc); d.ppe.push(ppe); d.assets.push(assets);
+            d.debt.push(debt); d.equity.push(equity); d.liabEq.push(liabEq);
+            
+            d.ni_cf.push(ni); d.da_cf.push(da); d.dnwc.push(changeNWC); d.capex.push(capex); d.fcf.push(fcf); d.cash_end.push(cash);
+        }
+        
+        // Render Tables
+        const row = (name, arr, bold=false) => `<tr style="${bold?'font-weight:600; background:rgba(0,0,0,0.02)':''}"><td>${name}</td>${arr.map(v => `<td>${fmt(v)}</td>`).join('')}</tr>`;
+        
+        // IS
+        htmlIS += row('Revenue', d.rev, true);
+        htmlIS += row('COGS', d.cogs);
+        htmlIS += row('Gross Profit', d.gp, true);
+        htmlIS += row('OpEx', d.opex);
+        htmlIS += row('EBITDA', d.ebitda, true);
+        htmlIS += row('D&A', d.da);
+        htmlIS += row('EBIT', d.ebit, true);
+        htmlIS += row('Interest', d.int);
+        htmlIS += row('EBT', d.ebt);
+        htmlIS += row('Tax', d.tax);
+        htmlIS += row('Net Income', d.ni, true);
+        htmlIS += '</tbody>';
+        
+        // BS
+        htmlBS += row('Cash', d.cash);
+        htmlBS += row('Net Working Capital', d.nwc);
+        htmlBS += row('PP&E (Net)', d.ppe);
+        htmlBS += row('Total Assets', d.assets, true);
+        htmlBS += row('Total Debt', d.debt);
+        htmlBS += row('Total Equity', d.equity);
+        htmlBS += row('Total Liab & Equity', d.liabEq, true);
+        htmlBS += '</tbody>';
+        
+        // CF
+        htmlCF += row('Net Income', d.ni_cf);
+        htmlCF += row('Plus: D&A', d.da_cf);
+        htmlCF += row('Less: Change in NWC', d.dnwc);
+        htmlCF += row('Less: CapEx', d.capex);
+        htmlCF += row('Net Change in Cash', d.fcf, true);
+        htmlCF += row('Ending Cash Balance', d.cash_end, true);
+        htmlCF += '</tbody>';
+        
+        document.getElementById('table_is').innerHTML = htmlIS;
+        document.getElementById('table_bs').innerHTML = htmlBS;
+        document.getElementById('table_cf').innerHTML = htmlCF;
+    }
+
+
+
+    // --- HOMEPAGE LOGIC ---
+    function initHomeAnimations() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const counters = entry.target.querySelectorAll('.stat-val');
+                    counters.forEach(counter => {
+                        const target = +counter.getAttribute('data-target');
+                        const duration = 2500; // ms
+                        const startTime = performance.now();
+                        
+                        // Ease Out Expo Function
+                        const easeOutExpo = (x) => {
+                            return x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
+                        };
+
+                        const updateCount = (currentTime) => {
+                            const elapsed = currentTime - startTime;
+                            const progress = Math.min(elapsed / duration, 1);
+                            const easedProgress = easeOutExpo(progress);
+                            
+                            const current = Math.floor(easedProgress * target);
+                            counter.innerText = current + (target > 100 ? '+' : '');
+
+                            if (progress < 1) {
+                                requestAnimationFrame(updateCount);
+                            } else {
+                                counter.innerText = target + (target > 100 ? '+' : '');
+                            }
+                        };
+                        requestAnimationFrame(updateCount);
+                    });
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        const statsSection = document.getElementById('stats-strip');
+        if (statsSection) observer.observe(statsSection);
+    }
+
+    const quizState = {};
+    function nextQuiz(step, val) {
+        quizState[step] = val;
+        const qEl = document.getElementById('quiz-q');
+        const optsEl = document.getElementById('quiz-opts');
+        
+        if (step === 'goal') {
+            qEl.innerText = "What's your experience level?";
+            optsEl.innerHTML = `
+                <button class="quiz-btn" onclick="nextQuiz('level', 'beg')">Beginner</button>
+                <button class="quiz-btn" onclick="nextQuiz('level', 'int')">Intermediate</button>
+                <button class="quiz-btn" onclick="nextQuiz('level', 'adv')">Advanced</button>
+            `;
+        } else if (step === 'level') {
+            qEl.innerText = "Which sector interests you?";
+            optsEl.innerHTML = `
+                <button class="quiz-btn" onclick="nextQuiz('sector', 'tech')">Technology</button>
+                <button class="quiz-btn" onclick="nextQuiz('sector', 'fin')">Financials</button>
+                <button class="quiz-btn" onclick="nextQuiz('sector', 'hc')">Healthcare</button>
+                <button class="quiz-btn" onclick="nextQuiz('sector', 'cons')">Consumer</button>
+            `;
+        } else if (step === 'sector') {
+            // Recommendation Logic
+            let recs = [];
+            if (quizState.level === 'beg') recs = ['wacc', '3stmt', 'dcf'];
+            else if (quizState.level === 'int') recs = ['dcf', 'comps', 'sens'];
+            else recs = ['lbo', 'ma', 'ipo'];
+            
+            qEl.innerHTML = `We recommend starting with: <span style="color:var(--accent)">${getRecName(recs[0])}</span> → ${getRecName(recs[1])} → ${getRecName(recs[2])}`;
+            optsEl.innerHTML = `
+                <button class="btn btn-primary" onclick="showPage('${recs[0]}')">Start: ${getRecName(recs[0])}</button>
+                <button class="btn btn-outline" onclick="resetQuiz()">Retake Quiz</button>
+            `;
+        }
+    }
+
+    function getRecName(id) {
+        const map = { 'wacc': 'WACC', '3stmt': '3-Statement', 'dcf': 'DCF', 'comps': 'Comps', 'sens': 'Sensitivity', 'lbo': 'LBO', 'ma': 'M&A', 'ipo': 'IPO' };
+        return map[id] || id.toUpperCase();
+    }
+
+    function resetQuiz() {
+        document.getElementById('quiz-q').innerText = "What's your primary goal?";
+        document.getElementById('quiz-opts').innerHTML = `
+            <button class="quiz-btn" onclick="nextQuiz('goal', 'prep')">Internship Prep</button>
+            <button class="quiz-btn" onclick="nextQuiz('goal', 'work')">Live Deal Work</button>
+            <button class="quiz-btn" onclick="nextQuiz('goal', 'study')">CFA / Academic</button>
+        `;
+    }
+
+    window.onload = function() {
+        // Chart.js Modern Defaults
+        Chart.defaults.font.family = 'Inter';
+        Chart.defaults.color = '#64748B';
+        Chart.defaults.scale.grid.color = '#E2E8F0';
+        Chart.defaults.scale.grid.borderColor = 'transparent';
+        Chart.defaults.plugins.tooltip.backgroundColor = '#1E293B';
+        Chart.defaults.plugins.tooltip.padding = 12;
+        Chart.defaults.plugins.tooltip.cornerRadius = 8;
+        Chart.defaults.plugins.tooltip.titleFont = { family: 'Inter', size: 13, weight: 600 };
+        Chart.defaults.plugins.tooltip.bodyFont = { family: 'Inter', size: 12 };
+        Chart.defaults.elements.bar.borderRadius = 4;
+        Chart.defaults.elements.line.tension = 0.4; // Smooth curves
+        
+        // Smooth Chart Animations
+        Chart.defaults.animation.duration = 1500;
+        Chart.defaults.animation.easing = 'easeOutQuart';
+        
+        loadData();
+        
+        // Initial Calcs
+        calcDCF();
+        calcLBO();
+        calcComps();
+        calcWACC();
+        calcMA();
+        calcRatios();
+        calcIPO();
+        calcBond();
+        calcSens();
+        calcForecast();
+        filterGlossary();
+        calc3Stmt();
+        
+        updateProgress();
+        initHomeAnimations();
+    };
+
+</script>
+</body>
+</html>
