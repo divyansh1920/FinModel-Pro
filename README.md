@@ -21,9 +21,9 @@
 [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white)](https://www.chartjs.org/)
 
-[![Stars](https://img.shields.io/github/stars/yourusername/finmodel-pro?style=for-the-badge&color=gold)](https://github.com/yourusername/finmodel-pro/stargazers)
-[![Forks](https://img.shields.io/github/forks/yourusername/finmodel-pro?style=for-the-badge&color=navy)](https://github.com/yourusername/finmodel-pro/network)
-[![Issues](https://img.shields.io/github/issues/yourusername/finmodel-pro?style=for-the-badge)](https://github.com/yourusername/finmodel-pro/issues)
+[![Stars](https://img.shields.io/github/stars/divyansh1920/FinModel-Pro?style=for-the-badge&color=gold)](https://github.com/divyansh1920/FinModel-Pro/stargazers)
+[![Forks](https://img.shields.io/github/forks/divyansh1920/FinModel-Pro?style=for-the-badge&color=navy)](https://github.com/divyansh1920/FinModel-Pro/network)
+[![Issues](https://img.shields.io/github/issues/divyansh1920/FinModel-Pro?style=for-the-badge)](https://github.com/divyansh1920/FinModel-Pro/issues)
 [![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=for-the-badge)](http://makeapullrequest.com)
 
 <br/>
@@ -118,18 +118,18 @@ Every model is **live and automated** — enter your assumptions and every outpu
 
 ```bash
 # Option 1 — Clone and open
-git clone https://github.com/yourusername/finmodel-pro.git
-cd finmodel-pro
-open finmodel-pro.html        # macOS
+git clone https://github.com/divyansh1920/FinModel-Pro.git
+cd FinModel-Pro
+open FinModel-Pro.html        # macOS
 # OR
-start finmodel-pro.html       # Windows
+start FinModel-Pro.html       # Windows
 # OR
-xdg-open finmodel-pro.html    # Linux
+xdg-open FinModel-Pro.html    # Linux
 ```
 
 ```bash
 # Option 2 — Just download the file
-# Click "finmodel-pro.html" in this repo → Download → Double-click
+# Click "FinModel-Pro.html" in this repo → Download → Double-click
 # That's it. No npm. No server. No setup.
 ```
 
@@ -204,7 +204,7 @@ Accretion/(Dilution)  =  Pro-Forma EPS  −  Standalone EPS
 ## 🏗️ Architecture
 
 ```
-finmodel-pro.html
+FinModel-Pro.html
 │
 ├── <head>
 │   ├── Google Fonts (Inter + Playfair Display)
@@ -502,7 +502,7 @@ Contributions are what make this project better. Any help is **genuinely appreci
 ```bash
 # Fork the repo, then:
 git checkout -b feature/your-model-name
-# Make your changes to finmodel-pro.html
+# Make your changes to FinModel-Pro.html
 git commit -m 'feat: add [model name] with live calculations'
 git push origin feature/your-model-name
 # Open a Pull Request
@@ -587,7 +587,7 @@ documentation. Institutional references are for educational context only.
 
 <br/>
 
-[![Star History Chart](https://api.star-history.com/svg?repos=divyansh1920/FinModel-Pro&type=Date)](https://star-history.com/#yourusername/finmodel-pro&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=divyansh1920/FinModel-Pro&type=Date)](https://star-history.com/#divyansh1920/FinModel-Pro&Date)
 
 <br/>
 
