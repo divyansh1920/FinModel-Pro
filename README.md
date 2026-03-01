@@ -57,18 +57,18 @@ Every model is **live and automated** — enter your assumptions and every outpu
 <br/>
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────────┐
-│                                                                                 │
-│   VALUATION                    CORPORATE FINANCE          MARKETS & CREDIT      │
-│   ─────────────────────        ──────────────────         ──────────────────    │
-│   📊 DCF Valuation Model       💼 3-Statement Model        📈 Bond Valuation     │
+┌───────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                   │
+│   VALUATION                    CORPORATE FINANCE          MARKETS & CREDIT        │
+│   ─────────────────────        ──────────────────         ──────────────────      │
+│   📊 DCF Valuation Model       💼 3-Statement Model        📈 Bond Valuation    │
 │      · Perpetuity Growth       📉 Financial Forecasting    📋 Ratio Dashboard    │
 │      · Exit Multiple           🔀 M&A Accretion/Dilution   🎯 Sensitivity Table  │
-│                                                                                 │
+│                                                                                   │
 │   🏢 Comps Analysis (CCA)      🔒 LBO Model               🗺️  Football Field     │
-│   ⚖️  WACC Calculator          🏛️  IPO Valuation            📚 Formula Glossary   │
-│                                                                                 │
-└─────────────────────────────────────────────────────────────────────────────────┘
+│   ⚖️  WACC Calculator          🏛️  IPO Valuation            📚 Formula Glossary  │
+│                                                                                   │
+└───────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 <br/>
